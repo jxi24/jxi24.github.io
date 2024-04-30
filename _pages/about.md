@@ -1,6 +1,6 @@
 ---
 layout: about
-title: about
+title: About
 permalink: /
 subtitle: <a href='https://theory.fnal.gov/'>Fermilab Theory Division</a>. PO Box 500 MS 106 Batavia, IL 60510.
 
