@@ -1,5 +1,12 @@
-github_users:
-  - jxi24
-
 github_repos:
   - AchillesGen/Achilles
+  - NuHepMC/Spec
+  - NuHepMC/cpputils
+  - jxi24/NuGeometry
+  - jxi24/HEPReference
+
+gitlab_repos:
+  - spice-mc/Chili
+  - spice-mc/Pepper
+  - resbos2/resbos2
+  - i-flow/i-flow
