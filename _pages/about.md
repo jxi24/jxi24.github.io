@@ -15,8 +15,14 @@ selected_papers: true # includes a list of papers marked as "selected={true}"
 social: true # includes social icons at the bottom of the page
 ---
 
-Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](http://reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder.
+Hi! My name is Joshua Isaacson. 
+I obtained my Ph.D. from Michigan State University in 2017 with my [thesis](https://d.lib.msu.edu/etd/6889) on the ResBos2 program.
+After obtaining my Ph.D. I went to Fermi National Accelerator Laboratory (Fermilab) in the fall of 2017 as a Research Associate.
+During this time, we obtained a SciDAC5 grant for development of Neutrino and Collider computational tools ([NeuCol](https://neucol.github.io/)).
+Currently, I am an Applications Physicist I at Fermilab.
 
-Put your address / P.O. box / other info right below your picture. You can also disable any of these elements by editing `profile` property of the YAML header of your `_pages/about.md`. Edit `_bibliography/papers.bib` and Jekyll will render your [publications page](/al-folio/publications/) automatically.
+My main research focuses on the development of theoretical-computational tools for both the LHC and neutrino experiments. My main projects include the [Achilles](https://github.com/AchillesGen/Achilles) neutrino event generator, [ResBos2](https://resbos2.gitlab.io/), the [Sherpa](https://sherpa-team.gitlab.io/) collider event generator, and [Pepper](https://spice-mc.gitlab.io/pepper/intro.html) (the first ever platform-agnostic event generator).
 
-Link to your social media connections, too. This theme is set up to use [Font Awesome icons](https://fontawesome.com/) and [Academicons](https://jpswalsh.github.io/academicons/), like the ones below. Add your Facebook, Twitter, LinkedIn, Google Scholar, or just disable all of them.
+I am also interested in developing machine learning tools to improve the performance of these tools and to address anomaly detection. This is mainly handled through the use of Normalizing Flows.
+
+For additional details on my research, please see my [publications](/publications).
