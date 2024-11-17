@@ -21,6 +21,7 @@ url: https://jxi24.github.io # the base hostname & protocol for your site
 baseurl: # the subpath of your site, e.g. /blog/. Leave blank for root
 last_updated: false # set to true if you want to display last updated in the footer
 impressum_path: # set to path to include impressum link in the footer, use the same path as permalink in a page, helps to conform with EU GDPR
+back_to_top: true
 
 # -----------------------------------------------------------------------------
 # Theme
@@ -323,6 +324,7 @@ enable_publication_badges:
   altmetric: true # Altmetric badge (https://www.altmetric.com/products/altmetric-badges/)
   dimensions: true # Dimensions badge (https://badge.dimensions.ai/)
   google_scholar: true # Google Scholar badge (https://scholar.google.com/intl/en/scholar/citations.html)
+  inspirehep: true
 
 # Filter out certain bibtex entry keywords used internally from the bib output
 filtered_bibtex_keywords:
@@ -338,6 +340,7 @@ filtered_bibtex_keywords:
     blog,
     code,
     html,
+    inspirehep_id,
     pdf,
     poster,
     preview,
