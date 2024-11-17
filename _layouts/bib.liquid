@@ -137,7 +137,11 @@
     {% assign proceedings = 'inproceedings,incollection' | split: ',' %}
     {% assign thesis = 'thesis,mastersthesis,phdthesis' | split: ',' %}
     {% if entry.type == 'article' %}
-      {% capture entrytype %}<em>{{entry.journal}}</em>{% endcapture %}
+      {% if entry.journal %}
+          {% capture entrytype %}<em>{{entry.journal}}</em>{% endcapture %}
+      {% else %}
+          {% capture entrytype %}arXiv: <em>{{entry.arxiv}}</em> {% endcapture %}
+      {% endif %}
     {% elsif proceedings contains entry.type %}
       {% capture entrytype %}<em>In {{entry.booktitle}}</em> {% endcapture %}
     {% elsif thesis contains entry.type %}
@@ -179,6 +183,9 @@
       {% endif %}
       {% if entry.abstract %}
         <a class="abstract btn btn-sm z-depth-0" role="button">Abs</a>
+      {% endif %}
+      {% if entry.doi %}
+        <a href="https://doi.org/{{ entry.doi }}" class="btn btn-sm z-depth-0" role="button">DOI</a>
       {% endif %}
       {% if entry.arxiv %}
         <a href="http://arxiv.org/abs/{{ entry.arxiv }}" class="btn btn-sm z-depth-0" role="button">arXiv</a>
@@ -240,7 +247,11 @@
       {% assign entry_has_altmetric_badge = entry.altmetric or entry.doi or  entry.eprint or entry.pmid or entry.isbn %}
       {% assign entry_has_dimensions_badge = entry.dimensions or entry.doi or entry.pmid %}
       {% assign entry_has_google_scholar_badge = entry.google_scholar_id %}
-      {% if entry_has_altmetric_badge or entry_has_dimensions_badge or entry_has_google_scholar_badge %}
+      {% assign entry_has_inspirehep_badge = false %}
+      {% if entry.inspirehep_id %}
+          {% assign entry_has_inspirehep_badge = true %}
+      {% endif %}
+      {% if entry_has_altmetric_badge or entry_has_dimensions_badge or entry_has_google_scholar_badge or entry_has_inspirehep_badge %}
         <div class="badges">
           {% if site.enable_publication_badges.altmetric and entry_has_altmetric_badge %}
             <span
@@ -289,6 +300,17 @@
                 alt="{% google_scholar_citations site.scholar_userid entry.google_scholar_id %} Google Scholar citations"
               >
             </a>
+          {% endif %}
+          {% if site.enable_publication_badges.inspirehep and entry_has_inspirehep_badge %}
+              <a
+                href="https://inspirehep.net/literature/{{ entry.inspirehep_id }}"
+                aria-label="Inspirehep link"
+                role="button"
+              >
+              <img src="https://img.shields.io/badge/inspire-{%inspirehep_citations entry.inspirehep_id%}-001628?logo=inspire&logoColor=001628&labelColor=beige"
+                   alt="{% inspirehep_citations entry.inspirehep_id %} InspireHEP citations"
+              >
+              </a>
           {% endif %}
         </div>
       {% endif %}
