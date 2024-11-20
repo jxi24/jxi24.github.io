@@ -1,11 +1,10 @@
 ---
 layout: page
-title: project 2
-description: a project with a background image and giscus comments
-img: assets/img/3.jpg
+title: Pepper
+description: Portable Engine for the Production of Parton-level Event Records is an efficient parton-level event generator to simulate high-energy physics at colliders such as the LHC.
+img: assets/img/pepper.png
 importance: 2
-category: work
-giscus_comments: true
+category: Collider
 ---
 
 Every project has a beautiful feature showcase page.
