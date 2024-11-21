@@ -83,12 +83,9 @@
     {
       "name": "Physics",
       "icon": "fa-solid fa-tag",
-      "keywords": [
-      ]
+      "keywords": []
     }
   ],
-  "references": [
-  ],
-  "projects": [
-  ]
+  "references": [],
+  "projects": []
 }

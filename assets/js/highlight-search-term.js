@@ -108,4 +108,3 @@ const getRangesForSearchTermInNode = (node, search) => {
 };
 
 export { highlightSearchTerm };
-

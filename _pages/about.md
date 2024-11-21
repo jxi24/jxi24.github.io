@@ -15,7 +15,7 @@ selected_papers: true # includes a list of papers marked as "selected={true}"
 social: true # includes social icons at the bottom of the page
 ---
 
-Hi! My name is Joshua Isaacson. 
+Hi! My name is Joshua Isaacson.
 I obtained my Ph.D. from Michigan State University in 2017 with my [thesis](https://d.lib.msu.edu/etd/6889) on the ResBos2 program.
 After obtaining my Ph.D. I went to Fermi National Accelerator Laboratory (Fermilab) in the fall of 2017 as a Research Associate.
 During this time, we obtained a SciDAC5 grant for development of Neutrino and Collider computational tools ([NeuCol](https://neucol.github.io/)).
