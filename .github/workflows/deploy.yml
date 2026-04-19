@@ -1,30 +1,13 @@
 name: Deploy site
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Sync Publications"]
+    types:
+      - completed
     branches:
       - master
       - main
-    paths:
-      - "assets/**"
-      - "**.html"
-      - "**.js"
-      - "**.liquid"
-      - "**/*.md"
-      - "**.yml"
-      - "!.github/workflows/axe.yml"
-      - "!.github/workflows/broken-links.yml"
-      - "!.github/workflows/deploy-docker-tag.yml"
-      - "!.github/workflows/deploy-image.yml"
-      - "!.github/workflows/docker-slim.yml"
-      - "!.github/workflows/lighthouse-badger.yml"
-      - "!.github/workflows/prettier.yml"
-      - "!lighthouse_results/**"
-      - "!CONTRIBUTING.md"
-      - "!CUSTOMIZE.md"
-      - "!FAQ.md"
-      - "!INSTALL.md"
-      - "!README.md"
   pull_request:
     branches:
       - master
@@ -58,6 +41,10 @@ permissions:
 
 jobs:
   deploy:
+    # When triggered by workflow_run, only proceed if sync succeeded.
+    if: >
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     # available images: https://github.com/actions/runner-images#available-images
     runs-on: ubuntu-latest
     steps:

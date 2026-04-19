@@ -28,7 +28,6 @@ on:
 
 permissions:
   contents: write # push new bib entries + preview images
-  actions: write # trigger the deploy workflow after commit
 
 jobs:
   sync:
@@ -103,18 +102,9 @@ jobs:
             git push
           fi
 
-      # ── Step 4: trigger site rebuild ─────────────────────────────────────
-      # The commit above uses GITHUB_TOKEN, so it won't automatically trigger
-      # deploy.yml.  We dispatch it explicitly here so new papers go live now
-      # rather than waiting for the nightly cron.
-      - name: Trigger site deploy
-        if: steps.sync.outputs.count != '0'
-        run: gh workflow run deploy.yml --ref main
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true # non-fatal if deploy workflow is already running
-
-      # ── Step 5: email notification ────────────────────────────────────────
+      # ── Step 4: email notification ────────────────────────────────────────
+      # deploy.yml triggers automatically via workflow_run once this job
+      # completes, so no explicit dispatch is needed here.
       # Build the HTML body and collect attachment paths from new_papers.json.
       - name: Build email content
         id: email
