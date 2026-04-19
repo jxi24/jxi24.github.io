@@ -1,24 +1,28 @@
 name: Sync Publications
 
-# Runs daily and on every push to main.
-# If new papers are found on InspireHEP / ORCID the workflow will:
-#   1. Add them to _bibliography/papers.bib
-#   2. Generate a preview thumbnail from the arXiv PDF (first-page crop)
-#   3. Commit and push the changes
-#   4. Email a notification with the preview images attached
-#   5. Trigger a site rebuild so the new papers are live immediately
+# Entry point for all site updates. Always runs first; deploy.yml is
+# triggered exclusively via workflow_run once this job completes.
+#
+# On push / PR / cron / manual dispatch:
+#   1. Query InspireHEP and ORCID for new papers
+#   2. If new papers found (and not a PR): add bib entries, generate thumbnails, commit, email
+#   3. On completion (new papers or not), deploy.yml fires automatically
 #
 # Required secrets (Settings → Secrets → Actions):
 #   SMTP_SERVER        — SMTP hostname, e.g. smtp.gmail.com
 #   SMTP_USER          — sender / login address
 #   SMTP_PASSWORD      — password or app-password
 #
-# Optional secrets / variables:
+# Optional secrets:
 #   SMTP_PORT          — 465 (SSL, default) or 587 (STARTTLS)
 #   NOTIFICATION_EMAIL — recipient; defaults to isaacson@fnal.gov
 
 on:
   push:
+    branches:
+      - main
+      - master
+  pull_request:
     branches:
       - main
       - master
@@ -37,8 +41,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # Use GITHUB_TOKEN — commits made here won't re-trigger this workflow,
-          # preventing an infinite loop.
+          # GITHUB_TOKEN commits won't re-trigger this workflow (no loop).
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
@@ -51,7 +54,7 @@ jobs:
       - name: Install dependencies
         run: pip install pymupdf
 
-      # ── Step 1: sync bib ──────────────────────────────────────────────────
+      # ── Step 1: sync bib (runs for every trigger) ─────────────────────────
       - name: Sync publications from InspireHEP and ORCID
         id: sync
         run: |
@@ -65,9 +68,11 @@ jobs:
           echo "count=$count" >> "$GITHUB_OUTPUT"
           echo "Found $count new paper(s)"
 
+      # ── Steps 2-4 skipped on PRs (never commit to a PR branch) ───────────
+
       # ── Step 2: generate thumbnails (new papers only) ─────────────────────
       - name: Generate preview thumbnails for new papers
-        if: steps.sync.outputs.count != '0'
+        if: steps.sync.outputs.count != '0' && github.event_name != 'pull_request'
         run: |
           python3 - <<'PYEOF'
           import json, subprocess, sys
@@ -87,7 +92,7 @@ jobs:
 
       # ── Step 3: commit and push ───────────────────────────────────────────
       - name: Commit new papers and thumbnails
-        if: steps.sync.outputs.count != '0'
+        if: steps.sync.outputs.count != '0' && github.event_name != 'pull_request'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -103,12 +108,12 @@ jobs:
           fi
 
       # ── Step 4: email notification ────────────────────────────────────────
-      # deploy.yml triggers automatically via workflow_run once this job
-      # completes, so no explicit dispatch is needed here.
-      # Build the HTML body and collect attachment paths from new_papers.json.
       - name: Build email content
         id: email
-        if: steps.sync.outputs.count != '0' && secrets.SMTP_SERVER != ''
+        if: >
+          steps.sync.outputs.count != '0' &&
+          github.event_name != 'pull_request' &&
+          secrets.SMTP_SERVER != ''
         run: |
           python3 - <<'PYEOF'
           import json, os
@@ -162,7 +167,6 @@ jobs:
               fh.write(f"attachments={attachments}\n")
           PYEOF
 
-          # Read HTML into a step output using a heredoc delimiter
           {
             echo 'html<<__EMAIL_BODY_EOF__'
             cat /tmp/email_body.html
@@ -170,7 +174,10 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Send email notification
-        if: steps.sync.outputs.count != '0' && secrets.SMTP_SERVER != ''
+        if: >
+          steps.sync.outputs.count != '0' &&
+          github.event_name != 'pull_request' &&
+          secrets.SMTP_SERVER != ''
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.SMTP_SERVER }}
