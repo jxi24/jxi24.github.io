@@ -214,6 +214,47 @@ def fetch_orcid_inspire_ids(orcid: str) -> set[int]:
     return ids
 
 
+# ── BibTeX field extraction ───────────────────────────────────────────────────
+
+def _bib_field(entry: str, field: str) -> str:
+    """Extract a BibTeX field value, correctly handling nested braces."""
+    m = re.search(rf'\b{re.escape(field)}\s*=\s*', entry, re.I)
+    if not m:
+        return ""
+    pos = m.end()
+    if pos >= len(entry):
+        return ""
+    delim = entry[pos]
+    if delim == '"':
+        end = entry.find('"', pos + 1)
+        return entry[pos + 1 : end].strip().strip("{}") if end > 0 else ""
+    if delim == '{':
+        depth = 0
+        for i in range(pos, len(entry)):
+            if entry[i] == '{':
+                depth += 1
+            elif entry[i] == '}':
+                depth -= 1
+                if depth == 0:
+                    return entry[pos + 1 : i].strip().strip("{}")
+    return ""
+
+
+def _entry_to_dict(bib: str) -> dict:
+    """Convert a BibTeX entry string to a dict suitable for JSON output."""
+    key_m = re.search(r'@\w+\{(\w+:\w+),', bib)
+    inspire_m = re.search(r'inspirehep_id\s*=\s*\{(\d+)\}', bib)
+    key = key_m.group(1) if key_m else "unknown"
+    return {
+        "key":        key,
+        "title":      _bib_field(bib, "title"),
+        "authors":    _bib_field(bib, "author"),
+        "arxiv":      _bib_field(bib, "arxiv"),
+        "inspire_id": int(inspire_m.group(1)) if inspire_m else None,
+        "preview":    key.replace(":", "_") + ".png",
+    }
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -232,6 +273,8 @@ def main() -> None:
                     help=f"ORCID iD (default: {DEFAULT_ORCID})")
     ap.add_argument("--default-preview", default=DEFAULT_PREVIEW,
                     help=f"Fallback preview image filename (default: {DEFAULT_PREVIEW})")
+    ap.add_argument("--output-json", metavar="PATH",
+                    help="Write JSON summary of newly added papers (for CI/email notification)")
     args = ap.parse_args()
 
     bib_path = Path(args.bib_file)
@@ -305,6 +348,13 @@ def main() -> None:
 
     bib_path.write_text(new_text)
     print(f"\nDone — added {len(new_entries)} paper(s) to {bib_path}")
+
+    if args.output_json:
+        import json as _json
+        summary = {"new_papers": [_entry_to_dict(e) for e in new_entries]}
+        Path(args.output_json).write_text(_json.dumps(summary, indent=2))
+        print(f"Wrote paper summary to {args.output_json}")
+
     print("\nNext steps:")
     print("  1. Add `selected = {true}` to papers to feature on the about page")
     print(f"  2. Replace `preview = {{{args.default_preview}}}` with a real thumbnail")

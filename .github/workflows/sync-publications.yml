@@ -1,0 +1,130 @@
+name: Sync Publications
+
+# Runs daily and on every push to main.
+# If new papers are found on InspireHEP / ORCID the workflow will:
+#   1. Add them to _bibliography/papers.bib
+#   2. Generate a preview thumbnail from the arXiv PDF (first-page crop)
+#   3. Commit and push the changes
+#   4. Email a notification with the preview images attached
+#   5. Trigger a site rebuild so the new papers are live immediately
+#
+# Required secrets (Settings → Secrets → Actions):
+#   SMTP_SERVER        — SMTP hostname, e.g. smtp.gmail.com
+#   SMTP_USER          — sender / login address
+#   SMTP_PASSWORD      — password or app-password
+#
+# Optional secrets / variables:
+#   SMTP_PORT          — 465 (SSL, default) or 587 (STARTTLS)
+#   NOTIFICATION_EMAIL — recipient; defaults to isaacson@fnal.gov
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  schedule:
+    - cron: "30 6 * * *" # 06:30 UTC daily
+  workflow_dispatch:
+
+permissions:
+  contents: write # push new bib entries + preview images
+  actions: write # trigger the deploy workflow after commit
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Use GITHUB_TOKEN — commits made here won't re-trigger this workflow,
+          # preventing an infinite loop.
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install pymupdf
+
+      # ── Step 1: sync bib ──────────────────────────────────────────────────
+      - name: Sync publications from InspireHEP and ORCID
+        id: sync
+        run: |
+          python3 scripts/sync_publications.py \
+            --output-json /tmp/new_papers.json
+          count=$(python3 -c "
+          import json, pathlib
+          f = pathlib.Path('/tmp/new_papers.json')
+          print(len(json.loads(f.read_text())['new_papers']) if f.exists() else 0)
+          ")
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "Found $count new paper(s)"
+
+      # ── Step 2: generate thumbnails (new papers only) ─────────────────────
+      - name: Generate preview thumbnails for new papers
+        if: steps.sync.outputs.count != '0'
+        run: |
+          python3 - <<'PYEOF'
+          import json, subprocess, sys
+          from pathlib import Path
+
+          papers = json.loads(Path("/tmp/new_papers.json").read_text())["new_papers"]
+          for p in papers:
+              if p.get("arxiv"):
+                  result = subprocess.run(
+                      [sys.executable, "scripts/generate_previews.py",
+                       "--key", p["key"]],
+                      check=False,
+                  )
+                  if result.returncode != 0:
+                      print(f"Warning: preview generation failed for {p['key']}")
+          PYEOF
+
+      # ── Step 3: commit and push ───────────────────────────────────────────
+      - name: Commit new papers and thumbnails
+        if: steps.sync.outputs.count != '0'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add _bibliography/papers.bib
+          git add assets/img/publication_preview/ 2>/dev/null || true
+
+          if git diff --staged --quiet; then
+            echo "Nothing to commit (already up to date)"
+          else
+            git commit -m "chore: sync ${{ steps.sync.outputs.count }} new publication(s) [skip ci]"
+            git push
+          fi
+
+      # ── Step 4: trigger site rebuild ─────────────────────────────────────
+      # The commit above uses GITHUB_TOKEN, so it won't automatically trigger
+      # deploy.yml.  We dispatch it explicitly here so new papers go live now
+      # rather than waiting for the nightly cron.
+      - name: Trigger site deploy
+        if: steps.sync.outputs.count != '0'
+        run: gh workflow run deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true # non-fatal if deploy workflow is already running
+
+      # ── Step 5: email notification ────────────────────────────────────────
+      - name: Send email notification
+        if: steps.sync.outputs.count != '0'
+        run: |
+          python3 scripts/send_notification.py \
+            --json /tmp/new_papers.json \
+            --preview-dir assets/img/publication_preview
+        env:
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+        continue-on-error: true # missing SMTP config is non-fatal
