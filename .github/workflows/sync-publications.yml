@@ -156,7 +156,7 @@ jobs:
               'Add <code>selected = {true}</code> to feature a paper on your about page.</p>'
               '</body></html>'
           )
-          Path("/tmp/email_body.html").write_text(html)
+          Path("/tmp/email_body.html").write_text(html + "\n")
 
           attachments = ",".join(
               str(preview_dir / p["preview"])
