@@ -52,7 +52,7 @@ All PRs must pass Prettier formatting checks (enforced by CI). The Prettier conf
 | `_projects/` | Individual project entries rendered as cards |
 | `_news/` | News/announcement items shown on the about page |
 | `_bibliography/papers.bib` | All publications in BibTeX format |
-| `_data/` | Structured YAML data: `cv.yml`, `coauthors.yml`, `repositories.yml`, `venues.yml` |
+| `_data/` | Structured YAML data: `coauthors.yml`, `repositories.yml`, `venues.yml` (`cv.yml` exists but is unused — see CV System below) |
 | `_layouts/` | Liquid page templates (`about`, `page`, `post`, `distill`, `cv`, `bib`) |
 | `_includes/` | Reusable Liquid components (header, footer, social links, figures, etc.) |
 | `_sass/` | SCSS stylesheets (`_base.scss`, `_themes.scss`, `_variables.scss`) |
@@ -78,7 +78,7 @@ Each `.md` file in `_projects/` renders as a card on `/projects/`. Front matter 
 
 ### CV System
 
-The CV at `/cv/` is driven by `_data/cv.yml` structured as sections with entries. The `_layouts/cv.liquid` template iterates over this data. Do not put CV content directly in `_pages/cv.md`.
+The CV at `/cv/` is driven by **`assets/json/resume.json`** in [JSON Resume](https://jsonresume.org/schema/) format. The `jekyll_get_json` plugin (configured in `_config.yml`) loads that file as `site.data.resume` at build time, which causes `_layouts/cv.liquid` to take the JSON Resume rendering path (`{% else %}` branch). `_data/cv.yml` is present but never rendered — ignore it. `_pages/cv.md` provides only the page shell (layout, permalink, title, PDF download link).
 
 ### Configuration
 
