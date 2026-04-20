@@ -2,14 +2,14 @@
 
 ## Critical — Broken or Misleading Content
 
-- [ ] **Fix CV data** — `_data/cv.yml` currently contains Albert Einstein's career history as placeholder. Replace every section with actual positions, dates, and descriptions:
-  - Current: Applications Physicist I at Fermilab (start year, division)
-  - Postdoc history at Fermilab (2017–)
-  - Education: PhD Michigan State 2017 (fill thesis title/advisor)
-  - Awards & honors (any Fermilab recognition, DOE awards, etc.)
-  - Grants: NeuCol SciDAC5 and any others
-  - Academic interests: replace "Topic 1 / Topic 2" with actual research areas
-  - Remove placeholder "other interests" filler
+- [ ] **Fix CV data** — `_data/cv.yml` has Joshua's name and MSU PhD, but several sections are still al-folio template placeholder:
+  - Education line 25: "Federal teaching diploma, ETH Zurich, 1900" — fake entry, remove
+  - Entire Experience section (lines 34–63): Princeton 1933–1955, Caltech 1933, Kaiser Wilhelm Institute 1917–1933, Prague 1911–1917, Zurich 1909–1911 — all template placeholder, replace with actual career history (postdoc/staff at Fermilab)
+  - Education PhD description (lines 18–23): "Description 1/2/3" — fill in thesis title and advisor
+  - Honors & Awards (lines 73–80): Nobel Prize 1921, Max Planck Medal 2029 — placeholder, replace with actual awards/recognition
+  - Open Source Projects (lines 64–69): only lists al-folio — add Achilles, ResBos2, Pepper, NuHepMC, i-flow
+  - Academic Interests (lines 82–92): "Topic 1/Topic 2" — replace with actual research areas
+  - Other Interests (line 97): "Hobby 1, Hobby 2" — fill in or remove
 
 - [ ] **Replace placeholder coauthors** — `_data/coauthors.yml` lists Einstein, Schrödinger, Planck, etc. Add actual frequent collaborators with links to their faculty/profile pages so author names on the publications page become clickable.
 
