@@ -12,28 +12,25 @@
 
 - [ ] **Replace placeholder coauthors** — `_data/coauthors.yml` lists Einstein, Schrödinger, Planck, etc. Add actual frequent collaborators with links to their faculty/profile pages so author names on the publications page become clickable.
 
-- [ ] **Remove or replace Project 6** — `_projects/6_project.md` is an unmodified template with category "fun" and no real content. Either delete it or replace with a real project (i-flow, NeuCol, or a catch-all "Other" entry).
+- [x] **Remove or replace Project 6** — ~~`_projects/6_project.md` is an unmodified template with category "fun" and no real content. Either delete it or replace with a real project (i-flow, NeuCol, or a catch-all "Other" entry).~~ Deleted.
 
 ---
 
 ## High Priority — Empty Pages that Visitors Will Click
 
 - [ ] **Write real project descriptions** — every file in `_projects/` contains template boilerplate ("beautiful feature showcase pages"). Replace with actual content for each:
-  - **Achilles**: physics motivation (neutrino–nucleus interactions), what it calculates, current status, links to the GitHub repo and key papers
-  - **ResBos2**: what resummation does and why it matters for W-mass/Drell-Yan, status, links
-  - **Pepper / Chili**: portable GPU event generation story, performance numbers, links
-  - **Sherpa**: Joshua's contributions to v3 (phase-space generation, amplitudes on GPUs), links
-  - **NuHepMC**: why a standard format matters, adoption status, links to spec repo
-  - Add a project for **i-flow** (normalizing flows for phase-space integration) — listed in repositories but absent from projects
-  - Add a project for **NeuCol SciDAC5** collaboration if appropriate
+  - [x] **Achilles**: physics motivation (neutrino–nucleus interactions), what it calculates, current status, links to the GitHub repo and key papers
+  - [ ] **ResBos2**: what resummation does and why it matters for W-mass/Drell-Yan, status, links
+  - [x] **Pepper / Chili**: portable GPU event generation story, performance numbers, links
+  - [x] **Sherpa**: Joshua's contributions to v3 (phase-space generation, amplitudes on GPUs), links
+  - [x] **NuHepMC**: why a standard format matters, adoption status, links to spec repo
+  - [ ] Add a project for **i-flow** (normalizing flows for phase-space integration) — listed in repositories but absent from projects
+  - [ ] Add a project for **NeuCol SciDAC5** collaboration if appropriate
 
 - [ ] **Add project images** — NuHepMC and i-flow have no preview thumbnails. Add a representative figure (Feynman diagram, architecture plot, result plot) for each project card.
+  - NuHepMC: two sketches proposed (event-graph schematic, generator→experiment pipeline); artwork still to be produced.
 
-- [ ] **Populate the teaching page** (`_pages/teaching.md`) — currently one line of placeholder text:
-  - List courses taught (course number, title, institution, year, enrollment if notable)
-  - Add a short teaching philosophy statement (2–3 sentences)
-  - Enable the page in the nav bar (`nav: true` in front matter)
-  - If no formal teaching yet: reframe as "Mentoring & Training" and list students/postdocs supervised, tutorials given, schools attended as lecturer
+- [x] **Populate the teaching page** (`_pages/teaching.md`) — scaffold in place: PHY 222 at MSU listed, nav enabled, stub sections for summer schools, mentoring, and teaching philosophy. Content to be filled in by Joshua.
 
 ---
 
