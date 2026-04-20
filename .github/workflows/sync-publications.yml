@@ -181,12 +181,12 @@ jobs:
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.SMTP_SERVER }}
-          server_port:    ${{ secrets.SMTP_PORT || 465 }}
-          secure:         ${{ secrets.SMTP_PORT != '587' }}
+          server_port:    465
+          secure:         true
           username:       ${{ secrets.SMTP_USER }}
           password:       ${{ secrets.SMTP_PASSWORD }}
           subject:        "New publications synced — ${{ steps.sync.outputs.count }} paper(s) added"
-          to:             ${{ secrets.NOTIFICATION_EMAIL || 'isaacson@fnal.gov' }}
+          to:             ${{ secrets.NOTIFICATION_EMAIL }}
           from:           "Portfolio Bot <${{ secrets.SMTP_USER }}>"
           html_body:      ${{ steps.email.outputs.html }}
           attachments:    ${{ steps.email.outputs.attachments }}
