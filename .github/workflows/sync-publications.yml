@@ -175,8 +175,7 @@ jobs:
       - name: Send email notification
         if: >
           steps.sync.outputs.count != '0' &&
-          github.event_name != 'pull_request' &&
-          secrets.SMTP_SERVER != ''
+          github.event_name != 'pull_request'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.SMTP_SERVER }}
