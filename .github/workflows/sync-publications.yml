@@ -112,8 +112,7 @@ jobs:
         id: email
         if: >
           steps.sync.outputs.count != '0' &&
-          github.event_name != 'pull_request' &&
-          secrets.SMTP_SERVER != ''
+          github.event_name != 'pull_request'
         run: |
           python3 - <<'PYEOF'
           import json, os
