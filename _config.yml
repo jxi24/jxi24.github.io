@@ -230,6 +230,9 @@ exclude:
   - _pages/about_einstein.md
   - purgecss.config.js
   - README.md
+  - CLAUDE.md
+  - todo.md
+  - memory/
   - readme_preview/
   - vendor
 keep_files:
