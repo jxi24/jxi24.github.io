@@ -1,0 +1,190 @@
+name: Sync Publications
+
+# Entry point for all site updates. Always runs first; deploy.yml is
+# triggered exclusively via workflow_run once this job completes.
+#
+# On push / PR / cron / manual dispatch:
+#   1. Query InspireHEP and ORCID for new papers
+#   2. If new papers found (and not a PR): add bib entries, generate thumbnails, commit, email
+#   3. On completion (new papers or not), deploy.yml fires automatically
+#
+# Required secrets (Settings → Secrets → Actions):
+#   SMTP_SERVER        — SMTP hostname, e.g. smtp.gmail.com
+#   SMTP_USER          — sender / login address
+#   SMTP_PASSWORD      — password or app-password
+#
+# Optional secrets:
+#   SMTP_PORT          — 465 (SSL, default) or 587 (STARTTLS)
+#   NOTIFICATION_EMAIL — recipient; defaults to isaacson@fnal.gov
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  schedule:
+    - cron: "30 6 * * *" # 06:30 UTC daily
+  workflow_dispatch:
+
+permissions:
+  contents: write # push new bib entries + preview images
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # GITHUB_TOKEN commits won't re-trigger this workflow (no loop).
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install pymupdf
+
+      # ── Step 1: sync bib (runs for every trigger) ─────────────────────────
+      - name: Sync publications from InspireHEP and ORCID
+        id: sync
+        run: |
+          python3 scripts/sync_publications.py \
+            --output-json /tmp/new_papers.json
+          count=$(python3 -c "
+          import json, pathlib
+          f = pathlib.Path('/tmp/new_papers.json')
+          print(len(json.loads(f.read_text())['new_papers']) if f.exists() else 0)
+          ")
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "Found $count new paper(s)"
+
+      # ── Steps 2-4 skipped on PRs (never commit to a PR branch) ───────────
+
+      # ── Step 2: generate thumbnails (new papers only) ─────────────────────
+      - name: Generate preview thumbnails for new papers
+        if: steps.sync.outputs.count != '0' && github.event_name != 'pull_request'
+        run: |
+          python3 - <<'PYEOF'
+          import json, subprocess, sys
+          from pathlib import Path
+
+          papers = json.loads(Path("/tmp/new_papers.json").read_text())["new_papers"]
+          for p in papers:
+              if p.get("arxiv"):
+                  result = subprocess.run(
+                      [sys.executable, "scripts/generate_previews.py",
+                       "--key", p["key"]],
+                      check=False,
+                  )
+                  if result.returncode != 0:
+                      print(f"Warning: preview generation failed for {p['key']}")
+          PYEOF
+
+      # ── Step 3: commit and push ───────────────────────────────────────────
+      - name: Commit new papers and thumbnails
+        if: steps.sync.outputs.count != '0' && github.event_name != 'pull_request'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add _bibliography/papers.bib
+          git add assets/img/publication_preview/ 2>/dev/null || true
+
+          if git diff --staged --quiet; then
+            echo "Nothing to commit (already up to date)"
+          else
+            git commit -m "chore: sync ${{ steps.sync.outputs.count }} new publication(s) [skip ci]"
+            git push
+          fi
+
+      # ── Step 4: email notification ────────────────────────────────────────
+      - name: Build email content
+        id: email
+        if: >
+          steps.sync.outputs.count != '0' &&
+          github.event_name != 'pull_request'
+        run: |
+          python3 - <<'PYEOF'
+          import json, os
+          from pathlib import Path
+
+          papers = json.loads(Path("/tmp/new_papers.json").read_text())["new_papers"]
+          preview_dir = Path("assets/img/publication_preview")
+          n = len(papers)
+
+          rows = []
+          for p in papers:
+              title   = p.get("title",   "").strip("{}")
+              authors = p.get("authors", "")
+              if len(authors) > 130:
+                  authors = authors[:127] + "\u2026"
+              arxiv      = p.get("arxiv", "")
+              inspire_id = p.get("inspire_id")
+              links = []
+              if arxiv:
+                  links.append(f'<a href="https://arxiv.org/abs/{arxiv}" style="color:#0056b3">arXiv:{arxiv}</a>')
+              if inspire_id:
+                  links.append(f'<a href="https://inspirehep.net/literature/{inspire_id}" style="color:#0056b3">InspireHEP</a>')
+              rows.append(
+                  f'<tr><td style="padding:12px 0;border-bottom:1px solid #e5e5e5">'
+                  f'<strong>{title}</strong><br>'
+                  f'<span style="color:#555;font-size:.9em">{authors}</span><br>'
+                  f'<span style="font-size:.85em">{"&nbsp;&middot;&nbsp;".join(links)}</span>'
+                  f'</td></tr>'
+              )
+
+          html = (
+              '<!DOCTYPE html><html><body style="font-family:sans-serif;max-width:680px;margin:0 auto;padding:24px">'
+              f'<h2 style="border-bottom:2px solid #333;padding-bottom:8px">'
+              f'{n} new publication{"s" if n != 1 else ""} synced to jxi24.github.io</h2>'
+              '<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse">'
+              + "".join(rows)
+              + '</table>'
+              '<p style="margin-top:20px;padding:10px 14px;background:#f5f5f5;border-left:3px solid #ccc;'
+              'font-size:.85em;color:#666">Preview images are attached. '
+              'Add <code>selected = {true}</code> to feature a paper on your about page.</p>'
+              '</body></html>'
+          )
+          Path("/tmp/email_body.html").write_text(html + "\n")
+
+          attachments = ",".join(
+              str(preview_dir / p["preview"])
+              for p in papers
+              if (preview_dir / p["preview"]).exists()
+          )
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write(f"attachments={attachments}\n")
+          PYEOF
+
+          {
+            echo 'html<<__EMAIL_BODY_EOF__'
+            cat /tmp/email_body.html
+            echo '__EMAIL_BODY_EOF__'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Send email notification
+        if: >
+          steps.sync.outputs.count != '0' &&
+          github.event_name != 'pull_request'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port:    465
+          secure:         true
+          username:       ${{ secrets.SMTP_USER }}
+          password:       ${{ secrets.SMTP_PASSWORD }}
+          subject:        "New publications synced — ${{ steps.sync.outputs.count }} paper(s) added"
+          to:             ${{ secrets.NOTIFICATION_EMAIL }}
+          from:           "Portfolio Bot <${{ secrets.SMTP_USER }}>"
+          html_body:      ${{ steps.email.outputs.html }}
+          attachments:    ${{ steps.email.outputs.attachments }}

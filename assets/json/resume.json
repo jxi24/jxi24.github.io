@@ -8,27 +8,30 @@
     "url": "https://jxi24.github.io",
     "summary": "",
     "location": {
-      "address": "2712 Broadway St",
-      "postalCode": "CA 94115",
-      "city": "San Francisco",
+      "address": "",
+      "postalCode": "",
+      "city": "Batavia",
       "countryCode": "US",
-      "region": "California"
+      "region": "Illinois"
     },
-    "profiles": [
-      {
-        "network": "Twitter",
-        "username": "AlbertEinstein",
-        "url": "https://twitter.com/AlbertEinstein"
-      }
-    ]
+    "profiles": []
   },
   "work": [
+    {
+      "name": "Michigan State University",
+      "position": "Assistant Professor",
+      "url": "https://pa.msu.edu/",
+      "startDate": "2025-08-16",
+      "endDate": "",
+      "summary": "Perform theoretical particle physics research vital to the success of the experimental community. This mainly includes development of event generator frameworks. Teach courses in the physics department.",
+      "highlights": ["Achilles Event Generator", "SciDAC5 Grant"]
+    },
     {
       "name": "Fermi National Accelerator Laboratory",
       "position": "Applications Physicist I",
       "url": "https://fnal.gov",
       "startDate": "2022-08-01",
-      "endDate": "",
+      "endDate": "2025-08-01",
       "summary": "Perform theoretical particle physics research vital to the success of the experimental community. This mainly includes development of event generator frameworks",
       "highlights": ["Achilles Event Generator", "SciDAC5 Grant"]
     },

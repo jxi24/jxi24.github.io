@@ -1,56 +1,13 @@
 name: Deploy site
 
+# Triggered exclusively by Sync Publications completing (push, PR, cron, or
+# manual dispatch all flow through sync first).  workflow_dispatch is kept
+# for emergency manual rebuilds that bypass the sync check.
 on:
-  push:
-    branches:
-      - master
-      - main
-    paths:
-      - "assets/**"
-      - "**.html"
-      - "**.js"
-      - "**.liquid"
-      - "**/*.md"
-      - "**.yml"
-      - "!.github/workflows/axe.yml"
-      - "!.github/workflows/broken-links.yml"
-      - "!.github/workflows/deploy-docker-tag.yml"
-      - "!.github/workflows/deploy-image.yml"
-      - "!.github/workflows/docker-slim.yml"
-      - "!.github/workflows/lighthouse-badger.yml"
-      - "!.github/workflows/prettier.yml"
-      - "!lighthouse_results/**"
-      - "!CONTRIBUTING.md"
-      - "!CUSTOMIZE.md"
-      - "!FAQ.md"
-      - "!INSTALL.md"
-      - "!README.md"
-  pull_request:
-    branches:
-      - master
-      - main
-    paths:
-      - "assets/**"
-      - "**.html"
-      - "**.js"
-      - "**.liquid"
-      - "**/*.md"
-      - "**.yml"
-      - "!.github/workflows/axe.yml"
-      - "!.github/workflows/broken-links.yml"
-      - "!.github/workflows/deploy-docker-tag.yml"
-      - "!.github/workflows/deploy-image.yml"
-      - "!.github/workflows/docker-slim.yml"
-      - "!.github/workflows/lighthouse-badger.yml"
-      - "!.github/workflows/prettier.yml"
-      - "!lighthouse_results/**"
-      - "!CONTRIBUTING.md"
-      - "!CUSTOMIZE.md"
-      - "!FAQ.md"
-      - "!INSTALL.md"
-      - "!README.md"
-  schedule:
-    - cron: "45 1 * * *"
+  workflow_run:
+    workflows: ["Sync Publications"]
+    types:
+      - completed
   workflow_dispatch:
 
 permissions:
@@ -60,14 +17,27 @@ jobs:
   deploy:
     # available images: https://github.com/actions/runner-images#available-images
     runs-on: ubuntu-latest
+    # Skip if sync failed or was cancelled; always run for manual dispatch.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
+        with:
+          # For PR-triggered sync runs, build the PR branch so site changes are
+          # validated against the actual PR code, not the default branch.
+          # For all other triggers leave ref empty → latest HEAD of default branch
+          # (which includes any new-paper commits that sync just pushed).
+          ref: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.head_sha || '' }}
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.2.2"
           bundler-cache: true
+
       - name: Update _config.yml ⚙️
         uses: fjogeleit/yaml-update-action@main
         with:
@@ -75,17 +45,25 @@ jobs:
           valueFile: "_config.yml"
           propertyPath: "giscus.repo"
           value: ${{ github.repository }}
+
       - name: Install and Build 🔧
         run: |
           pip3 install --upgrade jupyter
           export JEKYLL_ENV=production
           bundle exec jekyll build --lsi
+
       - name: Purge unused CSS 🧹
         run: |
           npm install -g purgecss
           purgecss -c purgecss.config.js
+
       - name: Deploy 🚀
-        if: github.event_name != 'pull_request'
+        # Build always runs (validates the site); only push to GitHub Pages for
+        # non-PR events.  When sync was triggered by a pull_request event the
+        # workflow_run context exposes that original event name.
+        if: >
+          github.event_name == 'workflow_dispatch' ||
+          github.event.workflow_run.event != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: _site
