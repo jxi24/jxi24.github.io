@@ -1,21 +1,120 @@
 {% assign repo_url = include.repository | split: '/' %}
-{% if site.data.repositories.github_users contains repo_url.first %}
-  {% assign show_owner = false %}
-{% else %}
-  {% assign show_owner = true %}
-{% endif %}
 
 <div class="repo p-2 text-center">
-  <a href="https://gitlab.com/{{ include.repository }}">
-    <img
-      class="repo-img-light w-100"
-      alt="{{ include.repository }}"
-      src="https://gitlab-readme-stats.vercel.app/api/pin/?username={{ repo_url[0] }}&repo={{ repo_url[1] }}&theme={{ site.repo_theme_light }}&show_owner={{ show_owner }}"
-    >
-    <img
-      class="repo-img-dark w-100"
-      alt="{{ include.repository }}"
-      src="https://gitlab-readme-stats.vercel.app/api/pin/?username={{ repo_url[0] }}&repo={{ repo_url[1] }}&theme={{ site.repo_theme_dark }}&show_owner={{ show_owner }}"
-    >
+  <a
+    href="https://gitlab.com/{{ include.repository }}"
+    class="gitlab-repo-card text-decoration-none"
+    data-namespace="{{ repo_url[0] }}"
+    data-repo="{{ repo_url[1] }}"
+  >
+    <div class="gitlab-card-inner">
+      <div class="gitlab-card-header">
+        <span class="gitlab-card-icon"><i class="fa-regular fa-bookmark"></i></span>
+        <span class="gitlab-card-title">
+          <span class="gitlab-card-owner">{{ repo_url[0] }}</span>
+          /
+          <strong>{{ repo_url[1] }}</strong>
+        </span>
+        <span class="gitlab-card-brand"><i class="fa-brands fa-gitlab"></i></span>
+      </div>
+      <p class="gitlab-card-desc">
+        <span class="gitlab-desc-loading">Loading&hellip;</span>
+        <span class="gitlab-desc-text" style="display: none;"></span>
+      </p>
+      <div class="gitlab-card-stats">
+        <span class="gitlab-stat-lang">
+          <span class="gitlab-lang-dot" style="display: none;"></span>
+          <span class="gitlab-lang-text"></span>
+        </span>
+        <span class="gitlab-stat">
+          <i class="fa-regular fa-star"></i>
+          <span class="gitlab-stars">—</span>
+        </span>
+        <span class="gitlab-stat">
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" class="gitlab-fork-icon">
+            <path
+              d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"
+            />
+          </svg>
+          <span class="gitlab-forks">—</span>
+        </span>
+      </div>
+    </div>
   </a>
 </div>
+
+<script>
+  (function () {
+    var LANG_COLORS = {
+      Python: "#3572A5",
+      "C++": "#f34b7d",
+      C: "#555555",
+      Fortran: "#4d41b1",
+      Julia: "#a270ba",
+      JavaScript: "#f1e05a",
+      TypeScript: "#2b7489",
+      Ruby: "#701516",
+      Shell: "#89e051",
+      CMake: "#DA3434",
+      Makefile: "#427819",
+      TeX: "#3D6117",
+      Cuda: "#3A4E3A",
+    };
+
+    var namespace = {{ repo_url[0] | jsonify }};
+    var repo = {{ repo_url[1] | jsonify }};
+    var projectPath = encodeURIComponent(namespace + "/" + repo);
+    var apiBase = "https://gitlab.com/api/v4/projects/" + projectPath;
+
+    var cards = document.querySelectorAll(
+      '.gitlab-repo-card[data-namespace="' + namespace + '"][data-repo="' + repo + '"]'
+    );
+    var card = cards[cards.length - 1];
+    if (!card) return;
+
+    var descLoading = card.querySelector(".gitlab-desc-loading");
+    var descText = card.querySelector(".gitlab-desc-text");
+    var starsEl = card.querySelector(".gitlab-stars");
+    var forksEl = card.querySelector(".gitlab-forks");
+    var langDot = card.querySelector(".gitlab-lang-dot");
+    var langText = card.querySelector(".gitlab-lang-text");
+
+    function showDesc(text) {
+      if (descLoading) descLoading.style.display = "none";
+      if (descText) {
+        descText.textContent = text;
+        descText.style.display = "";
+      }
+    }
+
+    fetch(apiBase)
+      .then(function (r) {
+        return r.ok ? r.json() : Promise.reject(r.status);
+      })
+      .then(function (data) {
+        showDesc(data.description || "No description provided.");
+        if (starsEl) starsEl.textContent = data.star_count != null ? data.star_count : "0";
+        if (forksEl) forksEl.textContent = data.forks_count != null ? data.forks_count : "0";
+        return fetch(apiBase + "/languages");
+      })
+      .then(function (r) {
+        return r.ok ? r.json() : Promise.reject(r.status);
+      })
+      .then(function (langs) {
+        var names = Object.keys(langs);
+        if (names.length > 0) {
+          var primary = names[0];
+          if (langText) langText.textContent = primary;
+          if (langDot) {
+            langDot.style.display = "inline-block";
+            langDot.style.backgroundColor = LANG_COLORS[primary] || "var(--global-theme-color)";
+          }
+        }
+      })
+      .catch(function () {
+        showDesc("Visit repository for details.");
+        if (starsEl) starsEl.textContent = "N/A";
+        if (forksEl) forksEl.textContent = "N/A";
+      });
+  })();
+</script>
