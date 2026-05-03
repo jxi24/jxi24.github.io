@@ -3,6 +3,7 @@
 ## Critical — Broken or Misleading Content
 
 - [ ] **Fix CV data** — The CV is rendered from `assets/json/resume.json` (JSON Resume format), NOT `_data/cv.yml`. Work and education are mostly real, but several fields are still template placeholder:
+
   - `basics.location`: "2712 Broadway St, San Francisco, CA 94115" — template address, replace with Fermilab or remove
   - `basics.profiles`: Twitter username `AlbertEinstein` / URL to Einstein's Twitter — remove or replace with Joshua's actual handle
   - `basics.summary`: empty string — add a short bio sentence
@@ -19,6 +20,7 @@
 ## High Priority — Empty Pages that Visitors Will Click
 
 - [ ] **Write real project descriptions** — every file in `_projects/` contains template boilerplate ("beautiful feature showcase pages"). Replace with actual content for each:
+
   - **Achilles**: physics motivation (neutrino–nucleus interactions), what it calculates, current status, links to the GitHub repo and key papers
   - **ResBos2**: what resummation does and why it matters for W-mass/Drell-Yan, status, links
   - **Pepper / Chili**: portable GPU event generation story, performance numbers, links
@@ -40,6 +42,7 @@
 ## Medium Priority — Professionalism and Discoverability
 
 - [ ] **Refresh the news section** — the three existing announcements are from 2015–2016 and are placeholder text. Add recent items (and enable news display on the about page by setting `news: true` in `_pages/about.md` if desired):
+
   - New paper postings (especially high-impact ones)
   - Conference talks (PHYSTAT, Neutrino, DPF, etc.)
   - Software releases / new versions
@@ -47,6 +50,7 @@
   - Job/funding news if shareable
 
 - [ ] **Expand the about page bio** — the current bio is accurate but brief. Consider adding:
+
   - One sentence on research vision / longer-term goals
   - Explicit mention of open-source philosophy
   - Any postdoc/student openings or collaboration invitations
@@ -72,6 +76,7 @@
 - [ ] **Improve repository cards** (`_data/repositories.yml`) — add a one-line description for each repo so the repository page is informative rather than just a list of links.
 
 - [ ] **Add site description** — `_config.yml` has a generic al-folio description. Replace with a real one (used by search engines and link previews):
+
   ```yaml
   description: >
     Joshua Isaacson — Applications Physicist at Fermilab working on
