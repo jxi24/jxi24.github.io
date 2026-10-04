@@ -6,7 +6,7 @@ title: blank # the website title (if blank, full name will be used instead)
 first_name: Joshua
 middle_name: P.
 last_name: Isaacson
-email: isaacson@fnal.gov
+email: isaacs21@msu.edu
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
   Joshua Isaacson, theoretical physicist developing event generators and computational tools for collider and neutrino physics.
 footer_text: >
