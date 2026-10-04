@@ -5,7 +5,6 @@ description: Simulation of High-Energy Reactions of PArticles in lepton-lepton, 
 img: assets/img/sherpa-logo.png
 importance: 3
 category: Collider
-giscus_comments: true
 related_publications: true
 ---
 
