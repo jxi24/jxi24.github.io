@@ -383,7 +383,7 @@ ul.task-list input[type="checkbox"] {
   text-align: center;
 
   .contact-icons {
-    font-size: 4rem;
+    font-size: 2.5rem;
 
     a {
       i::before {
@@ -754,7 +754,7 @@ footer.sticky-bottom {
   }
 
   h2.category {
-    color: var(--global-divider-color);
+    color: var(--global-text-color-light);
     border-bottom: 1px solid var(--global-divider-color);
     padding-top: 0.5rem;
     margin-top: 2rem;
@@ -785,7 +785,7 @@ footer.sticky-bottom {
   }
 
   h2.bibliography {
-    color: var(--global-divider-color);
+    color: var(--global-text-color-light);
     border-top: 1px solid var(--global-divider-color);
     padding-top: 1rem;
     margin-top: 2rem;
@@ -801,6 +801,10 @@ footer.sticky-bottom {
       margin-bottom: 1rem;
 
       .preview {
+        // Thumbnails stack above the text on phones and dominate each entry
+        @media (max-width: 575.98px) {
+          display: none;
+        }
       }
 
       .abbr {

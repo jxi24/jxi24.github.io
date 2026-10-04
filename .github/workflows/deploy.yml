@@ -1,36 +1,40 @@
 name: Deploy site
 
-# Triggered exclusively by Sync Publications completing (push, PR, cron, or
-# manual dispatch all flow through sync first).  workflow_dispatch is kept
-# for emergency manual rebuilds that bypass the sync check.
+# - Push / daily cron / manual sync: Sync Publications runs first and this
+#   workflow fires on its completion, so newly synced papers are included.
+# - Pull requests: build and link-check the PR directly (no deploy), so the
+#   result shows up as a check on the PR.
+# - workflow_dispatch: emergency manual rebuild that bypasses the sync.
 on:
   workflow_run:
     workflows: ["Sync Publications"]
     types:
       - completed
+  pull_request:
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: deploy-${{ github.event_name == 'pull_request' && github.ref || 'pages' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   deploy:
     # available images: https://github.com/actions/runner-images#available-images
     runs-on: ubuntu-latest
-    # Skip if sync failed or was cancelled; always run for manual dispatch.
+    # Skip if sync failed or was cancelled.
     if: >
-      github.event_name == 'workflow_dispatch' ||
+      github.event_name != 'workflow_run' ||
       github.event.workflow_run.conclusion == 'success'
 
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
-        with:
-          # For PR-triggered sync runs, build the PR branch so site changes are
-          # validated against the actual PR code, not the default branch.
-          # For all other triggers leave ref empty → latest HEAD of default branch
-          # (which includes any new-paper commits that sync just pushed).
-          ref: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.head_sha || '' }}
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -38,20 +42,13 @@ jobs:
           ruby-version: "3.2.2"
           bundler-cache: true
 
-      - name: Update _config.yml ⚙️
-        uses: fjogeleit/yaml-update-action@main
-        with:
-          commitChange: false
-          valueFile: "_config.yml"
-          propertyPath: "giscus.repo"
-          value: ${{ github.repository }}
-
       - name: Install ImageMagick 🖼️
-        run: sudo apt-get install -y imagemagick
+        # apt-get update first: the runner's package index goes stale and
+        # installs 404 without it.
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
 
-      - name: Install and Build 🔧
+      - name: Build 🔧
         run: |
-          pip3 install --upgrade jupyter
           export JEKYLL_ENV=production
           bundle exec jekyll build --lsi
 
@@ -60,13 +57,15 @@ jobs:
           npm install -g purgecss
           purgecss -c purgecss.config.js
 
+      - name: Check internal links 🔗
+        uses: lycheeverse/lychee-action@v1.9.0
+        with:
+          fail: true
+          # only check local links (images, pages) in the built site
+          args: --offline --remap '_site(/?.*)/assets/(.*) _site/assets/$2' --no-progress '_site/**/*.html'
+
       - name: Deploy 🚀
-        # Build always runs (validates the site); only push to GitHub Pages for
-        # non-PR events.  When sync was triggered by a pull_request event the
-        # workflow_run context exposes that original event name.
-        if: >
-          github.event_name == 'workflow_dispatch' ||
-          github.event.workflow_run.event != 'pull_request'
+        if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: _site

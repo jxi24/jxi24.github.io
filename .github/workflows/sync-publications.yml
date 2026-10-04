@@ -1,11 +1,11 @@
 name: Sync Publications
 
-# Entry point for all site updates. Always runs first; deploy.yml is
-# triggered exclusively via workflow_run once this job completes.
+# Entry point for site deploys. deploy.yml runs via workflow_run once this
+# job completes (pull requests are built by deploy.yml directly).
 #
-# On push / PR / cron / manual dispatch:
+# On push / cron / manual dispatch:
 #   1. Query InspireHEP and ORCID for new papers
-#   2. If new papers found (and not a PR): add bib entries, generate thumbnails, commit, email
+#   2. If new papers found: add bib entries, generate thumbnails, commit, email
 #   3. On completion (new papers or not), deploy.yml fires automatically
 #
 # Required secrets (Settings → Secrets → Actions):
@@ -15,14 +15,10 @@ name: Sync Publications
 #
 # Optional secrets:
 #   SMTP_PORT          — 465 (SSL, default) or 587 (STARTTLS)
-#   NOTIFICATION_EMAIL — recipient; defaults to isaacson@fnal.gov
+#   NOTIFICATION_EMAIL — recipient; defaults to isaacs21@msu.edu
 
 on:
   push:
-    branches:
-      - main
-      - master
-  pull_request:
     branches:
       - main
       - master
@@ -52,7 +48,7 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install pymupdf
+        run: pip install -r requirements.txt
 
       # ── Step 1: sync bib (runs for every trigger) ─────────────────────────
       - name: Sync publications from InspireHEP and ORCID
@@ -68,11 +64,9 @@ jobs:
           echo "count=$count" >> "$GITHUB_OUTPUT"
           echo "Found $count new paper(s)"
 
-      # ── Steps 2-4 skipped on PRs (never commit to a PR branch) ───────────
-
       # ── Step 2: generate thumbnails (new papers only) ─────────────────────
       - name: Generate preview thumbnails for new papers
-        if: steps.sync.outputs.count != '0' && github.event_name != 'pull_request'
+        if: steps.sync.outputs.count != '0'
         run: |
           python3 - <<'PYEOF'
           import json, subprocess, sys
@@ -83,7 +77,7 @@ jobs:
               if p.get("arxiv"):
                   result = subprocess.run(
                       [sys.executable, "scripts/generate_previews.py",
-                       "--key", p["key"]],
+                       "--key", p["key"], "--update-bib"],
                       check=False,
                   )
                   if result.returncode != 0:
@@ -92,7 +86,7 @@ jobs:
 
       # ── Step 3: commit and push ───────────────────────────────────────────
       - name: Commit new papers and thumbnails
-        if: steps.sync.outputs.count != '0' && github.event_name != 'pull_request'
+        if: steps.sync.outputs.count != '0'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -110,9 +104,7 @@ jobs:
       # ── Step 4: email notification ────────────────────────────────────────
       - name: Build email content
         id: email
-        if: >
-          steps.sync.outputs.count != '0' &&
-          github.event_name != 'pull_request'
+        if: steps.sync.outputs.count != '0'
         run: |
           python3 - <<'PYEOF'
           import json, os
@@ -157,11 +149,9 @@ jobs:
           )
           Path("/tmp/email_body.html").write_text(html + "\n")
 
-          attachments = ",".join(
-              str(preview_dir / p["preview"])
-              for p in papers
-              if (preview_dir / p["preview"]).exists()
-          )
+          # Same naming as canonical_preview() in scripts/generate_previews.py
+          previews = [preview_dir / (p["key"].replace(":", "_") + ".png") for p in papers]
+          attachments = ",".join(str(f) for f in previews if f.exists())
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
               fh.write(f"attachments={attachments}\n")
           PYEOF
@@ -173,18 +163,16 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Send email notification
-        if: >
-          steps.sync.outputs.count != '0' &&
-          github.event_name != 'pull_request'
+        if: steps.sync.outputs.count != '0'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.SMTP_SERVER }}
-          server_port: 465
-          secure: true
+          server_port: ${{ secrets.SMTP_PORT || 465 }}
+          secure: ${{ (secrets.SMTP_PORT || '465') == '465' }}
           username: ${{ secrets.SMTP_USER }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: "New publications synced — ${{ steps.sync.outputs.count }} paper(s) added"
-          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          to: ${{ secrets.NOTIFICATION_EMAIL || 'isaacs21@msu.edu' }}
           from: "Portfolio Bot <${{ secrets.SMTP_USER }}>"
           html_body: ${{ steps.email.outputs.html }}
           attachments: ${{ steps.email.outputs.attachments }}

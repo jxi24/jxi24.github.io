@@ -26,10 +26,11 @@
         {% endif %}
       {% endif %}
       {% if entry.preview %}
+        {% assign entry_path = entry.preview | prepend: '/assets/img/publication_preview/' %}
+        {% capture preview_exists %}{% file_exists {{ entry_path }} %}{% endcapture %}
         {% if entry.preview contains '://' %}
           <img class="preview z-depth-1 rounded" src="{{ entry.preview }}">
-        {% else %}
-          {% assign entry_path = entry.preview | prepend: '/assets/img/publication_preview/' %}
+        {% elsif preview_exists == 'true' %}
           {%
             include figure.liquid
             loading="eager"
@@ -92,15 +93,14 @@
               {{ author.last -}}
             </a>
           {%- else -%}
-            {{ author.first }}
-            {{ author.last }}
-          {% endif %}
+            {{- author.first | append: ' ' | append: author.last | strip -}}
+          {%- endif -%}
         {%- endif -%}
       {% endfor %}
       {%- assign more_authors = author_array_size | minus: author_array_limit -%}
 
       {%- assign more_authors_hide = more_authors | append: ' more author' -%}
-      {% if more_authors > 0 %}
+      {%- if more_authors > 0 -%}
         {%- if more_authors > 1 -%}
           {% assign more_authors_hide = more_authors_hide | append: 's' %}
         {%- endif -%}
@@ -111,7 +111,7 @@
             {% assign more_authors_show = more_authors_show | append: ', ' %}
           {% endunless %}
         {%- endfor -%}
-        , and
+        ,&nbsp;and
         <span
           class="more-authors"
           title="click to view {{more_authors_hide}}"

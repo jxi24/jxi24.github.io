@@ -39,7 +39,8 @@ All PRs must pass Prettier formatting checks (enforced by CI). The Prettier conf
 ### No test suite exists — CI validates via:
 
 - Prettier formatting (`.github/workflows/prettier.yml`)
-- Broken link detection (`.github/workflows/broken-links.yml`)
+- Build + internal link check on every PR (`.github/workflows/deploy.yml`)
+- External link detection in Markdown sources (`.github/workflows/broken-links.yml`)
 - Accessibility checks (`.github/workflows/axe.yml`)
 - Lighthouse performance audits (`.github/workflows/lighthouse-badger.yml`)
 
@@ -94,13 +95,15 @@ All major feature flags live in `_config.yml`. Key toggles:
 
 ### Deployment
 
-GitHub Actions (`.github/workflows/deploy.yml`) builds and deploys to GitHub Pages on every push to `main`. The build:
+`.github/workflows/sync-publications.yml` runs on every push to `master` and daily at 06:30 UTC. It pulls new papers from InspireHEP/ORCID into `papers.bib`, generates preview thumbnails, commits them, and emails a summary. When it finishes, `.github/workflows/deploy.yml` runs:
 
-1. Installs Ruby 3.2.2 + all gems
-2. Installs Python/Jupyter (for notebook rendering)
-3. Runs `jekyll build --lsi` (latent semantic indexing for related posts)
-4. Runs PurgeCSS to strip unused styles
+1. Installs Ruby 3.2.2 + all gems, and ImageMagick (for responsive WebP images)
+2. Runs `jekyll build --lsi` (latent semantic indexing for related posts)
+3. Runs PurgeCSS to strip unused styles
+4. Checks all internal links/images in `_site` with lychee (fails the build on broken ones)
 5. Deploys to `gh-pages` branch
+
+On pull requests, `deploy.yml` runs steps 1–4 directly (no deploy), so build and broken-image failures show up as a PR check.
 
 ## Key Conventions
 

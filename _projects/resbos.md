@@ -5,76 +5,26 @@ description: A tool for transverse momentum resummation for vector bosons at had
 img:
 importance: 1
 category: Collider
+related_publications: true
 ---
 
-Every project has a beautiful feature showcase page.
-It's easy to include images in a flexible 3-column grid format.
-Make your photos 1/3, 2/3, or full width.
+[**ResBos2**](https://resbos2.gitlab.io/) is a program for resummed predictions of color-singlet production at hadron colliders, such as Drell–Yan, $W$, $Z$, and Higgs boson production. It is a modern rewrite of the original ResBos code, which was used for vector-boson measurements at the Tevatron and the LHC.
 
-To give your project a background in the portfolio page, just add the img tag to the front matter like so:
+## Why resummation matters
 
-    ---
-    layout: page
-    title: project
-    description: a project with a background image
-    img: /assets/img/12.jpg
-    ---
+At small transverse momentum, fixed-order perturbation theory breaks down because of large logarithms of $q_T/Q$. ResBos2 resums these logarithms in the Collins–Soper–Sterman (CSS) formalism and matches the result to fixed-order calculations at large $q_T$. This gives a single prediction across the whole spectrum. Precision measurements, including the $W$-boson mass and the weak mixing angle, rely on an accurate description of the vector-boson $q_T$ distribution.
 
-<div class="row">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/1.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/3.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/5.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    Caption photos easily. On the left, a road goes through a tunnel. Middle, leaves artistically fall in a hipster photoshoot. Right, in another hipster photoshoot, a lumberjack grasps a handful of pine needles.
-</div>
-<div class="row">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/5.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    This image can also have a caption. It's like magic.
-</div>
+## Highlights
 
-You can also put regular text between your rows of images.
-Say you wanted to write a little bit about your project before you posted the rest of the images.
-You describe how you toiled, sweated, _bled_ for your project, and then... you reveal its glory in the next row of images.
+- Higher-order resummation in impact-parameter space, matched to fixed-order perturbative QCD
+- Fully differential in the leptonic decay products, so experimental fiducial cuts can be applied directly
+- Modern C++ implementation, written for extensibility and for the precision needs of the LHC
 
-<div class="row justify-content-sm-center">
-    <div class="col-sm-8 mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/6.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm-4 mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/11.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    You can also have artistically styled 2/3 + 1/3 images, like these.
-</div>
+## Links
 
-The code is simple.
-Just wrap your images with `<div class="col-sm">` and place them inside `<div class="row">` (read more about the <a href="https://getbootstrap.com/docs/4.4/layout/grid/">Bootstrap Grid</a> system).
-To make images responsive, add `img-fluid` class to each; for rounded corners and shadows use `rounded` and `z-depth-1` classes.
-Here's the code for the last row of images above:
-
-{% raw %}
-
-```html
-<div class="row justify-content-sm-center">
-  <div class="col-sm-8 mt-3 mt-md-0">
-    {% include figure.liquid path="assets/img/6.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-  </div>
-  <div class="col-sm-4 mt-3 mt-md-0">
-    {% include figure.liquid path="assets/img/11.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-  </div>
-</div>
-```
-
-{% endraw %}
+- Documentation: [resbos2.gitlab.io](https://resbos2.gitlab.io/)
+- Source: [gitlab.com/resbos2/resbos2](https://gitlab.com/resbos2/resbos2)
+- Key papers:
+  - Isaacson, Fu & Yuan, _Improving ResBos for the precision needs of the LHC_, [_Phys. Rev. D_ **110**, 073002 (2024)](https://arxiv.org/abs/2311.09916)
+  - Isaacson, Fu & Yuan, _ResBos2 and the CDF W mass measurement_, [_Phys. Rev. D_ **110**, 094023 (2024)](https://arxiv.org/abs/2205.02788)
+  - Ph.D. thesis: [_ResBos2: Precision Resummation for the LHC Era_](https://d.lib.msu.edu/etd/6889) (Michigan State University, 2017)

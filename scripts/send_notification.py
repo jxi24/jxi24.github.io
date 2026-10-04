@@ -15,7 +15,7 @@ Required env vars (or equivalent flags):
 
 Optional env vars:
     SMTP_PORT          465 (SSL, default) or 587 (STARTTLS)
-    NOTIFICATION_EMAIL recipient; defaults to isaacson@fnal.gov
+    NOTIFICATION_EMAIL recipient; defaults to isaacs21@msu.edu
 
 Usage:
     # In CI (env vars set as secrets)
@@ -27,7 +27,7 @@ Usage:
         --smtp-server smtp.gmail.com \\
         --smtp-user you@gmail.com \\
         --smtp-password "app-password" \\
-        --to isaacson@fnal.gov
+        --to isaacs21@msu.edu
 """
 
 import argparse
@@ -40,7 +40,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
 
-DEFAULT_TO = "isaacson@fnal.gov"
+DEFAULT_TO = "isaacs21@msu.edu"
 DEFAULT_PORT = 465
 
 
