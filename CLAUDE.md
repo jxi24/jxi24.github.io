@@ -37,6 +37,7 @@ npx prettier --check "**/*.{html,liquid}"
 All PRs must pass Prettier formatting checks (enforced by CI). The Prettier config is in `.prettierrc` (printWidth: 150 for Liquid files).
 
 ### No test suite exists — CI validates via:
+
 - Prettier formatting (`.github/workflows/prettier.yml`)
 - Broken link detection (`.github/workflows/broken-links.yml`)
 - Accessibility checks (`.github/workflows/axe.yml`)
@@ -46,22 +47,23 @@ All PRs must pass Prettier formatting checks (enforced by CI). The Prettier conf
 
 ### Content Organization
 
-| Directory | Purpose |
-|-----------|---------|
-| `_pages/` | Top-level site pages (about, publications, projects, cv, blog, etc.) |
-| `_projects/` | Individual project entries rendered as cards |
-| `_news/` | News/announcement items shown on the about page |
-| `_bibliography/papers.bib` | All publications in BibTeX format |
-| `_data/` | Structured YAML data: `coauthors.yml`, `repositories.yml`, `venues.yml` (`cv.yml` exists but is unused — see CV System below) |
-| `_layouts/` | Liquid page templates (`about`, `page`, `post`, `distill`, `cv`, `bib`) |
-| `_includes/` | Reusable Liquid components (header, footer, social links, figures, etc.) |
-| `_sass/` | SCSS stylesheets (`_base.scss`, `_themes.scss`, `_variables.scss`) |
-| `_plugins/` | Custom Jekyll Ruby plugins (citation fetchers, cache busting, etc.) |
-| `assets/` | Static files: images, JS, CSS, PDFs, fonts |
+| Directory                  | Purpose                                                                                                                       |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `_pages/`                  | Top-level site pages (about, publications, projects, cv, blog, etc.)                                                          |
+| `_projects/`               | Individual project entries rendered as cards                                                                                  |
+| `_news/`                   | News/announcement items shown on the about page                                                                               |
+| `_bibliography/papers.bib` | All publications in BibTeX format                                                                                             |
+| `_data/`                   | Structured YAML data: `coauthors.yml`, `repositories.yml`, `venues.yml` (`cv.yml` exists but is unused — see CV System below) |
+| `_layouts/`                | Liquid page templates (`about`, `page`, `post`, `distill`, `cv`, `bib`)                                                       |
+| `_includes/`               | Reusable Liquid components (header, footer, social links, figures, etc.)                                                      |
+| `_sass/`                   | SCSS stylesheets (`_base.scss`, `_themes.scss`, `_variables.scss`)                                                            |
+| `_plugins/`                | Custom Jekyll Ruby plugins (citation fetchers, cache busting, etc.)                                                           |
+| `assets/`                  | Static files: images, JS, CSS, PDFs, fonts                                                                                    |
 
 ### Publications System
 
 Publications are managed entirely through `_bibliography/papers.bib`. The `jekyll-scholar` plugin renders them on `/publications/`. Custom BibTeX fields control display behavior:
+
 - `bibtex_show = {true}` — adds a collapsible BibTeX block
 - `selected = {true}` — surfaces the paper on the about page
 - `preview = {filename.png}` — thumbnail image from `assets/img/publication_preview/`
@@ -72,6 +74,7 @@ The `_data/coauthors.yml` file maps author names to their profile URLs for autom
 ### Projects System
 
 Each `.md` file in `_projects/` renders as a card on `/projects/`. Front matter controls display:
+
 - `importance` — integer for sort order (lower = higher priority)
 - `category` — groups cards (currently: Collider, Neutrino, General)
 - `img` — card thumbnail from `assets/img/`
@@ -83,6 +86,7 @@ The CV at `/cv/` is driven by **`assets/json/resume.json`** in [JSON Resume](htt
 ### Configuration
 
 All major feature flags live in `_config.yml`. Key toggles:
+
 - `scholar.bibliography_template` — controls publication rendering
 - `enable_darkmode`, `enable_math`, `enable_masonry` — feature flags
 - `giscus` block — comment system configuration
@@ -91,6 +95,7 @@ All major feature flags live in `_config.yml`. Key toggles:
 ### Deployment
 
 GitHub Actions (`.github/workflows/deploy.yml`) builds and deploys to GitHub Pages on every push to `main`. The build:
+
 1. Installs Ruby 3.2.2 + all gems
 2. Installs Python/Jupyter (for notebook rendering)
 3. Runs `jekyll build --lsi` (latent semantic indexing for related posts)
