@@ -1,7 +1,7 @@
 {
   "basics": {
     "name": "Joshua Isaacson",
-    "label": "Applications Physicist I",
+    "label": "Assistant Professor, Department of Physics and Astronomy, Michigan State University",
     "image": "",
     "email": "isaacson@fnal.gov",
     "phone": "",
@@ -10,9 +10,9 @@
     "location": {
       "address": "",
       "postalCode": "",
-      "city": "Batavia",
+      "city": "East Lansing",
       "countryCode": "US",
-      "region": "Illinois"
+      "region": "Michigan"
     },
     "profiles": []
   },

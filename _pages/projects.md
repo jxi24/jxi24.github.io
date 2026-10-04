@@ -2,10 +2,10 @@
 layout: page
 title: Projects
 permalink: /projects/
-description: A growing collection of your cool projects.
+description: Open-source software for collider and neutrino physics that I develop or contribute to.
 nav: true
 nav_order: 3
-display_categories: [Collider, Neutrino, General]
+display_categories: [Collider, Neutrino]
 horizontal: false
 ---
 
