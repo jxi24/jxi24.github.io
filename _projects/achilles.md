@@ -6,76 +6,56 @@ img: assets/img/achilles.png
 importance: 1
 category: Neutrino
 related_publications: true
+notes_hash: 589595016e1c
 ---
 
-Every project has a beautiful feature showcase page.
-It's easy to include images in a flexible 3-column grid format.
-Make your photos 1/3, 2/3, or full width.
+Achilles (A CHIcago Land Lepton Event Simulator) is a modular, theory-driven event generator for electron-nucleus and neutrino-nucleus scattering. It is built for automated beyond-the-Standard-Model (BSM) calculations. Its aim is to provide theory uncertainties for DUNE and other experiments.
 
-To give your project a background in the portfolio page, just add the img tag to the front matter like so:
+## Physics
 
-    ---
-    layout: page
-    title: project
-    description: a project with a background image
-    img: /assets/img/12.jpg
-    ---
+Achilles factorizes the process into a leptonic current, a nuclear model, and final-state interactions.
 
-<div class="row">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/1.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/3.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/5.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    Caption photos easily. On the left, a road goes through a tunnel. Middle, leaves artistically fall in a hipster photoshoot. Right, in another hipster photoshoot, a lumberjack grasps a handful of pine needles.
-</div>
-<div class="row">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/5.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    This image can also have a caption. It's like magic.
-</div>
+- **Leptonic currents** are computed with Berends-Giele recursion through Sherpa/Comix. Arbitrary BSM models can therefore be brought in through UFO files.
+- **Nuclear models** include a (global) Fermi gas, relativistic mean field (RMF) configurations, and chiral perturbation theory (ChiPT)-based calculations.
+- **Final-state interactions** are described by an intranuclear cascade. It has options for potentials, Coulomb, Landau, Weyl and off-shell treatments.
 
-You can also put regular text between your rows of images, even citations {% cite einstein1950meaning %}.
-Say you wanted to write a bit about your project before you posted the rest of the images.
-You describe how you toiled, sweated, _bled_ for your project, and then... you reveal its glory in the next row of images.
+## Current capabilities
 
-<div class="row justify-content-sm-center">
-    <div class="col-sm-8 mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/6.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm-4 mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/11.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    You can also have artistically styled 2/3 + 1/3 images, like these.
-</div>
+- Lepton-nucleus scattering: charged-current quasielastic (CCQE) scattering and tau production for DUNE. Deep inelastic scattering (DIS) is in development.
+- Phase-space sampling with VEGAS and multichannel mappers, plus a partial unweighter.
+- Output as HepMC3 events following the NuHepMC convention, written by a plugin.
+- A Python plugin interface and a Python package on PyPI, alongside the C++ core.
 
-The code is simple.
-Just wrap your images with `<div class="col-sm">` and place them inside `<div class="row">` (read more about the <a href="https://getbootstrap.com/docs/4.4/layout/grid/">Bootstrap Grid</a> system).
-To make images responsive, add `img-fluid` class to each; for rounded corners and shadows use `rounded` and `z-depth-1` classes.
-Here's the code for the last row of images above:
+## Getting and building
 
-{% raw %}
+Achilles is written in C++ and built with CMake. Build details are on the project's GitHub wiki.
 
-```html
-<div class="row justify-content-sm-center">
-  <div class="col-sm-8 mt-3 mt-md-0">
-    {% include figure.liquid path="assets/img/6.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-  </div>
-  <div class="col-sm-4 mt-3 mt-md-0">
-    {% include figure.liquid path="assets/img/11.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-  </div>
-</div>
+```
+mkdir build && cd build
+cmake .. -DACHILLES_ENABLE_SHERPA=ON -DSHERPA_ROOT_DIR=/path/to/sherpa
+make -jN
 ```
 
-{% endraw %}
+- HepMC3 (version 3.2.5 or later) is fetched automatically if it is not found. Disable this with `-DENABLE_HEPMC3=OFF`.
+- Sherpa is required for BSM calculations. Disable them with `-DENABLE_BSM=OFF`.
+- The executable is `build/bin/achilles`, driven by a YAML run card.
+
+## Citing
+
+If you use Achilles, please cite the generator papers:
+
+- [Introducing a novel event generator for electron-nucleus and neutrino-nucleus scattering](https://arxiv.org/abs/2205.06378) (Phys. Rev. D)
+- [Novel event generator for the automated simulation of neutrino scattering](https://arxiv.org/abs/2110.15319) (Phys. Rev. D)
+
+Cite the pion paper below if you use the pion or cascade results.
+
+## Key papers
+
+- [Novel event generator for the automated simulation of neutrino scattering](https://arxiv.org/abs/2110.15319): the Berends-Giele leptonic currents in Sherpa/Comix, used for BSM and the leptonic part.
+- [Introducing a novel event generator for electron-nucleus and neutrino-nucleus scattering](https://arxiv.org/abs/2205.06378): the generator itself.
+- [Single pion production and pion propagation in achilles](https://arxiv.org/abs/2508.19213) (Phys. Rev. D): pion production and the cascade, with MicroBooNE, JSNS2 and JLab inclusive comparisons.
+- [Final-state interactions in neutrino-induced proton knockout from argon in MicroBooNE](https://arxiv.org/abs/2406.09244) (Phys. Rev. C).
+- [Tau polarization and correlated decays in neutrino experiments](https://arxiv.org/abs/2303.08104) (Phys. Rev. D).
+- [New approach to intranuclear cascades with quantum Monte Carlo configurations](https://arxiv.org/abs/2007.15570) (Phys. Rev. C).
+- [NuHepMC: A standardized event record format for neutrino event generators](https://arxiv.org/abs/2310.13211): the output standard ([specification](https://github.com/NuHepMC/Spec)).
+- [HepMC3 event record](https://arxiv.org/abs/1912.08005): the underlying event record.

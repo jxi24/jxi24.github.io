@@ -5,76 +5,39 @@ description: Portable Engine for the Production of Parton-level Event Records is
 img: assets/img/pepper.png
 importance: 2
 category: Collider
+notes_hash: 64114a599c5f
 ---
 
-Every project has a beautiful feature showcase page.
-It's easy to include images in a flexible 3-column grid format.
-Make your photos 1/3, 2/3, or full width.
+Pepper, the **P**ortable **E**ngine for the **P**roduction of **P**arton-level **E**vent **R**ecords, is a GPU-portable leading-order parton-level event generator written in C++ with Kokkos. It targets the cost of simulating high-multiplicity final states at the LHC, where large numbers of partonic subprocesses and expensive phase-space integration make billion-event samples, such as those needed for the High-Luminosity LHC, very costly.
 
-To give your project a background in the portfolio page, just add the img tag to the front matter like so:
+## What it does
 
-    ---
-    layout: page
-    title: project
-    description: a project with a background image
-    img: /assets/img/12.jpg
-    ---
+Pepper computes tree-level matrix elements and generates unweighted parton-level events on GPUs and CPUs from a single code base. Phase space is sampled with the Chili mappings plus adaptive Vegas grids. This is the baseline workflow, called Pepper+Vegas. Pyper, the Python bindings, exchange device-memory phase-space points and target densities with external code without copying them to the host.
 
-<div class="row">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/1.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/3.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/5.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    Caption photos easily. On the left, a road goes through a tunnel. Middle, leaves artistically fall in a hipster photoshoot. Right, in another hipster photoshoot, a lumberjack grasps a handful of pine needles.
-</div>
-<div class="row">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/5.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    This image can also have a caption. It's like magic.
-</div>
+## Normalizing-flow workflow
 
-You can also put regular text between your rows of images.
-Say you wanted to write a little bit about your project before you posted the rest of the images.
-You describe how you toiled, sweated, _bled_ for your project, and then... you reveal its glory in the next row of images.
+A new workflow, Pepper+Flow, replaces the Vegas proposal with helicity-conditioned rational-quadratic coupling normalizing flows. They are initialized from the Vegas grids and trained with a variance loss on online batches plus a replay buffer of earlier Pepper evaluations. There are two setups: one flow per subprocess, or grouped conditional flows with process embeddings, grouped by parton content.
 
-<div class="row justify-content-sm-center">
-    <div class="col-sm-8 mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/6.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm-4 mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/11.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    You can also have artistically styled 2/3 + 1/3 images, like these.
-</div>
+The benchmarks are leading-order pp collisions at 13 TeV: Z+4j (134 subprocesses), Z+5j, tt̄+4j, and pure 4- and 5-jet production. They use unweighting thresholds of ε = 10⁻³ and 10⁻² and target samples of 10⁶ to 10⁹ events. On 4×H100 GPUs the flows reduce the cost of unweighted samples substantially:
 
-The code is simple.
-Just wrap your images with `<div class="col-sm">` and place them inside `<div class="row">` (read more about the <a href="https://getbootstrap.com/docs/4.4/layout/grid/">Bootstrap Grid</a> system).
-To make images responsive, add `img-fluid` class to each; for rounded corners and shadows use `rounded` and `z-depth-1` classes.
-Here's the code for the last row of images above:
+- Speedups reach 109.3× end-to-end, including training, and 245.7× for generation alone.
+- A billion unweighted Z+4j events take under a day.
+- At the same sample size, Z+5j takes about 5.6 days and tt̄+4j about 2.9 days.
 
-{% raw %}
+The Vegas baseline is measured at 10⁶ events and extrapolated linearly to larger samples. The paper also reports a single-GPU (RTX 4000 Ada) study. These speedups are not a direct comparison with our earlier flow studies, which used continuous flows and RegFlow.
 
-```html
-<div class="row justify-content-sm-center">
-  <div class="col-sm-8 mt-3 mt-md-0">
-    {% include figure.liquid path="assets/img/6.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-  </div>
-  <div class="col-sm-4 mt-3 mt-md-0">
-    {% include figure.liquid path="assets/img/11.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-  </div>
-</div>
-```
+## Getting Pepper
 
-{% endraw %}
+The source is at [gitlab.com/spice-mc/pepper](https://gitlab.com/spice-mc/pepper). It builds with CMake, and the flow paper uses version 1.10.0. Runs are configured with a runcard (`pepper.ini`), and the repository includes a manual and unit and system tests. The Python flow code for training, checkpoints and generation is in the public repository `pepper-flows`.
+
+## How to cite
+
+Please cite the Pepper reference paper below. If you use the flow workflow, also cite the flow paper. If you use the Chili phase-space sampler, also cite the many-jet paper.
+
+## Key papers
+
+- [A Portable Parton-Level Event Generator for the High-Luminosity LHC](https://arxiv.org/abs/2311.06198), SciPost Phys. 17, 081: the Pepper reference.
+- [Efficient precision simulation of processes with many-jet final states at the LHC](https://arxiv.org/abs/2309.13154), Phys. Rev. D 109, 014013: the Chili phase-space sampler and many-jet benchmarks.
+- [Efficient Event Generation for High-Multiplicity LHC Processes: An End-to-End GPU Workflow with Normalizing Flows](https://arxiv.org/abs/2608.21338), preprint: the flow workflow described above.
+- [Many-gluon tree amplitudes on modern GPUs](https://arxiv.org/abs/2106.06507), SciPost Phys. Codebases: GPU amplitude evaluation for novel event generators.
+- [Efficient phase-space generation for hadron collider event simulation](https://arxiv.org/abs/2302.10449), SciPost Phys.: phase-space generation for hadron colliders.
