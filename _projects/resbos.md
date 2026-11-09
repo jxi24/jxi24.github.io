@@ -5,76 +5,70 @@ description: A tool for transverse momentum resummation for vector bosons at had
 img:
 importance: 1
 category: Collider
+notes_hash: 561c0d4286ea
 ---
 
-Every project has a beautiful feature showcase page.
-It's easy to include images in a flexible 3-column grid format.
-Make your photos 1/3, 2/3, or full width.
+**ResBos2** is a C++ Monte Carlo program that gives fully differential cross sections for W, Z, γ\*, Higgs and diphoton production, and for other processes, at hadron colliders. It includes transverse-momentum resummation in the Collins-Soper-Sterman (CSS) formalism and in the alternative CFG scheme. It is used for precision electroweak work such as W-mass measurements.
 
-To give your project a background in the portfolio page, just add the img tag to the front matter like so:
+## Physics
 
-    ---
-    layout: page
-    title: project
-    description: a project with a background image
-    img: /assets/img/12.jpg
-    ---
+ResBos2 resums large logarithms of q_T/Q in impact-parameter (b) space. The A, B, C and H coefficients are set order by order. Non-perturbative physics enters through the BLNY or SIYY forms, with a b\* prescription (bMax). The resummed result is matched to fixed order through the Y term. The Y term is the fixed-order result minus its small-q_T asymptotic expansion, and it matters at large q_T.
 
-<div class="row">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/1.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/3.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/5.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    Caption photos easily. On the left, a road goes through a tunnel. Middle, leaves artistically fall in a hipster photoshoot. Right, in another hipster photoshoot, a lumberjack grasps a handful of pine needles.
-</div>
-<div class="row">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/5.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    This image can also have a caption. It's like magic.
-</div>
+## Current capabilities
 
-You can also put regular text between your rows of images.
-Say you wanted to write a little bit about your project before you posted the rest of the images.
-You describe how you toiled, sweated, _bled_ for your project, and then... you reveal its glory in the next row of images.
+- **Processes:** Drell-Yan, Z (up and down quark channels), W⁺, W⁻, γ\*, and Higgs. Decays to AA, ZZ and WW are supported.
+- **Accuracy (per the README):**
+  - W/Z/γ\*: NNLO fixed order with NNLL resummation.
+  - Higgs: NNLO/NNLL.
+  - Diphoton: NLO/NNLL.
+  - ZZ: NLO/NLL.
+- **Not yet complete:** Several processes (WW, ZZ, AA, H+jet) are not yet fully implemented, so check the README for current status.
+- **Cross-section components:** Resummed, asymptotic, delta-sigma, fixed-order, Y term, and total. A resummed-minus-asymptotic piece is provided for the MCFM interface.
+- **Inputs and setup:**
+  - LHAPDF PDFs.
+  - On-shell electroweak scheme with the G_F, M_W, M_Z input set.
+  - Scale choice of Q or M_T.
+  - VEGAS integration.
+  - Resummed grids in Q, q_T and y.
+  - HOPPET for splitting-function convolutions.
+  - MCFM interface for the fixed-order and Y-term pieces.
+- **Output:** Les Houches (LHEF) event files.
+- **Fitting:** A fitting framework for non-perturbative functions, using Drell-Yan q_T data from E288, E605, R209, CDF, D0, ATLAS and CMS.
+- **Python:** A SWIG-based Python extension.
 
-<div class="row justify-content-sm-center">
-    <div class="col-sm-8 mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/6.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm-4 mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/11.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    You can also have artistically styled 2/3 + 1/3 images, like these.
-</div>
+## Getting and building
 
-The code is simple.
-Just wrap your images with `<div class="col-sm">` and place them inside `<div class="row">` (read more about the <a href="https://getbootstrap.com/docs/4.4/layout/grid/">Bootstrap Grid</a> system).
-To make images responsive, add `img-fluid` class to each; for rounded corners and shadows use `rounded` and `z-depth-1` classes.
-Here's the code for the last row of images above:
+The source is in a git repository. Please get in touch for access. The build requires a C++11 compiler, LHAPDF and HOPPET. Optional support for ROOT, YODA, gzip and MPI is enabled through CMake options.
 
-{% raw %}
-
-```html
-<div class="row justify-content-sm-center">
-  <div class="col-sm-8 mt-3 mt-md-0">
-    {% include figure.liquid path="assets/img/6.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-  </div>
-  <div class="col-sm-4 mt-3 mt-md-0">
-    {% include figure.liquid path="assets/img/11.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-  </div>
-</div>
+```
+mkdir build; cd build
+cmake .. -DLHAPDF_ROOT_DIR=... -DHoppet_ROOT_DIR=...
+make -jN && make install
 ```
 
-{% endraw %}
+Run it with:
+
+```
+resbos -i resbos.config -o outdir [-s seed] [-g gridGen] [-w write LHE] [-v level]
+```
+
+The `-g` option runs the grid-generation mode. Unit and integration tests use GoogleTest.
+
+## Citing
+
+If you use ResBos2, please cite the two ResBos2 papers below, plus the physics papers relevant to your process.
+
+## Key papers
+
+- [Improving resbos for the precision needs of the LHC](https://arxiv.org/abs/2311.09916), Phys. Rev. D
+- [ResBos2 and the CDF W mass measurement](https://arxiv.org/abs/2205.02788), Phys. Rev. D
+
+Foundational papers on which the formalism and its inputs are based:
+
+- Soft gluon effects on lepton pairs at hadron colliders (the original W/Z resummation)
+- Effects of QCD resummation on distributions of leptons from the decay of electroweak vector bosons
+- The nonperturbative regime in QCD resummation for gauge boson production at hadron colliders (BLNY form)
+- Universality of the Collins-Soper-Sterman nonperturbative function in gauge boson production (SIYY form)
+- Tevatron Run-1 Z boson data and Collins-Soper-Sterman resummation formalism
+- Higgs boson production at the LHC with soft gluon effects
+- Photon pair production with soft gluon resummation in hadronic interactions
