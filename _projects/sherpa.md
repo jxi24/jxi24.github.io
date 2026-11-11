@@ -6,18 +6,17 @@ img: assets/img/sherpa-logo.png
 importance: 3
 category: Collider
 giscus_comments: true
-related_publications: true
 ---
 
 [**Sherpa**](https://gitlab.com/sherpa-team/sherpa) (Simulation of High-Energy Reactions of PArticles) is a full-chain Monte Carlo event generator for collider physics — matrix elements, parton shower, matching and merging, hadronisation, underlying event, and decays. It is one of the workhorse generators for the LHC experiments.
 
 ## v3 contributions
 
-Sherpa 3 was released in 2024. My contributions to the v3 series have focused on the parts of the chain most affected by the move to heterogeneous and GPU-accelerated hardware:
+Sherpa 3 was released in 2024. My contributions to the v3 series have focused on the parts of the chain most affected by the move to heterogeneous and GPU-accelerated hardware and on reviving the UFO interface by adopting UFO2.0:
 
-- Phase-space generation — improved adaptive and multi-channel sampling
 - Tree-level amplitude evaluation on GPUs, in concert with the Pepper effort
 - Infrastructure for portable event generation at HL-LHC scales
+- Implementing the UFO2.0 standard
 
 ## Links
 

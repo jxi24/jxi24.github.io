@@ -3,7 +3,7 @@
 ## Critical — Broken or Misleading Content
 
 - [ ] **Fix CV data** — The CV is rendered from `assets/json/resume.json` (JSON Resume format), NOT `_data/cv.yml`. Work and education are mostly real, but several fields are still template placeholder:
-  - `basics.location`: "2712 Broadway St, San Francisco, CA 94115" — template address, replace with Fermilab or remove
+  - ~~`basics.location`~~ — done: East Lansing, Michigan
   - `basics.profiles`: Twitter username `AlbertEinstein` / URL to Einstein's Twitter — remove or replace with Joshua's actual handle
   - `basics.summary`: empty string — add a short bio sentence
   - `projects`: empty array — add Achilles, ResBos2, Pepper, NuHepMC, i-flow
@@ -11,6 +11,12 @@
   - Consider adding `awards`, `volunteer`, `certificates` sections for honors/service
 
 - [ ] **Replace placeholder coauthors** — `_data/coauthors.yml` lists Einstein, Schrödinger, Planck, etc. Add actual frequent collaborators with links to their faculty/profile pages so author names on the publications page become clickable.
+
+- [x] **Update affiliation to MSU** — Assistant Professor at MSU since Aug 2025: about page subtitle and bio, CV label/location, email updated.
+
+- [x] **Fix failing deploy** — Ruby 3.2.2 unavailable on ubuntu-26.04 runners; workflows now pin `ruby-version: "3.2"`.
+
+- [x] **Remove empty project-page References / General category** — dropped `related_publications` from project pages (links are listed inline) and removed the empty `General` category from the projects page.
 
 - [x] **Remove or replace Project 6** — ~~`_projects/6_project.md` is an unmodified template with category "fun" and no real content. Either delete it or replace with a real project (i-flow, NeuCol, or a catch-all "Other" entry).~~ Deleted.
 
@@ -20,7 +26,7 @@
 
 - [ ] **Write real project descriptions** — every file in `_projects/` contains template boilerplate ("beautiful feature showcase pages"). Replace with actual content for each:
   - [x] **Achilles**: physics motivation (neutrino–nucleus interactions), what it calculates, current status, links to the GitHub repo and key papers
-  - [ ] **ResBos2**: what resummation does and why it matters for W-mass/Drell-Yan, status, links
+  - [x] **ResBos2**: what resummation does and why it matters for W-mass/Drell-Yan, status, links
   - [x] **Pepper / Chili**: portable GPU event generation story, performance numbers, links
   - [x] **Sherpa**: Joshua's contributions to v3 (phase-space generation, amplitudes on GPUs), links
   - [x] **NuHepMC**: why a standard format matters, adoption status, links to spec repo
@@ -30,7 +36,7 @@
 - [ ] **Add project images** — NuHepMC and i-flow have no preview thumbnails. Add a representative figure (Feynman diagram, architecture plot, result plot) for each project card.
   - NuHepMC: two sketches proposed (event-graph schematic, generator→experiment pipeline); artwork still to be produced.
 
-- [x] **Populate the teaching page** (`_pages/teaching.md`) — scaffold in place: PHY 222 at MSU listed, nav enabled, stub sections for summer schools, mentoring, and teaching philosophy. Content to be filled in by Joshua.
+- [ ] **Populate the teaching page** (`_pages/teaching.md`) — scaffold in place (PHY 222 at MSU, stub sections for summer schools, mentoring, and teaching philosophy) but hidden from the nav (`nav: false`) until filled in. Content to come in a separate PR; set `nav: true` when done.
 
 ---
 
@@ -55,7 +61,7 @@
 
 - [ ] **Verify and add social/professional links** in `_config.yml`:
   - LinkedIn username (currently blank) — useful for non-physics visitors
-  - Institutional page URL (`work_url`) — Fermilab theory division profile
+  - Institutional page URL (`work_url`) — MSU Physics and Astronomy faculty profile
   - Any active X/Mastodon handle
 
 ---
@@ -71,7 +77,7 @@
 - [ ] **Add site description** — `_config.yml` has a generic al-folio description. Replace with a real one (used by search engines and link previews):
   ```yaml
   description: >
-    Joshua Isaacson — Applications Physicist at Fermilab working on
+    Joshua Isaacson — Assistant Professor at Michigan State University working on
     computational tools for high-energy and neutrino physics.
   ```
 

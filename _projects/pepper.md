@@ -5,14 +5,13 @@ description: Portable Engine for the Production of Parton-level Event Records â€
 img: assets/img/pepper.png
 importance: 2
 category: Collider
-related_publications: true
 ---
 
 [**Pepper**](https://gitlab.com/spice-mc/pepper) (Portable Engine for the Production of Parton-level Event Records) is a GPU-portable parton-level event generator aimed at LHC and HL-LHC precision simulations. It is built on [Kokkos](https://kokkos.org/), so the same code runs on CPU, NVIDIA, AMD, and Intel hardware without a separate rewrite per backend.
 
 ## Why it exists
 
-The HL-LHC is projected to increase Monte Carlo CPU-hour demand by an order of magnitude. Traditional generators are single-threaded and CPU-only; Pepper targets the heterogeneous hardware that HPC centers actually deploy, so the simulation pipeline can scale with the experiments without a commensurate rise in computing cost.
+The HL-LHC is projected to increase Monte Carlo CPU-hour demand by an order of magnitude. Traditional generators are CPU-only; Pepper targets the heterogeneous hardware that HPC centers actually deploy, so the simulation pipeline can scale with the experiments without a commensurate rise in computing cost.
 
 ## Highlights
 

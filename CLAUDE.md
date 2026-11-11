@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an academic portfolio website for Joshua Isaacson (physicist at Fermilab) built on the [al-folio](https://github.com/alshedivat/al-folio) Jekyll theme. It showcases research in high-energy and neutrino physics, publications, projects, and CV.
+This is an academic portfolio website for Joshua Isaacson (Assistant Professor at Michigan State University; formerly Fermilab) built on the [al-folio](https://github.com/alshedivat/al-folio) Jekyll theme. It showcases research in high-energy and neutrino physics, publications, projects, and CV.
 
 ## Commands
 
@@ -91,7 +91,7 @@ All major feature flags live in `_config.yml`. Key toggles:
 ### Deployment
 
 GitHub Actions (`.github/workflows/deploy.yml`) builds and deploys to GitHub Pages on every push to `main`. The build:
-1. Installs Ruby 3.2.2 + all gems
+1. Installs Ruby 3.2.x + all gems
 2. Installs Python/Jupyter (for notebook rendering)
 3. Runs `jekyll build --lsi` (latent semantic indexing for related posts)
 4. Runs PurgeCSS to strip unused styles

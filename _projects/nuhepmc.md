@@ -4,7 +4,6 @@ title: NuHepMC
 description: A standardized event file format for neutrino-nucleus event generators.
 importance: 2
 category: Neutrino
-related_publications: true
 ---
 
 [**NuHepMC**](https://github.com/NuHepMC/Spec) is a standardized event-record format for neutrino event generators — a thin, neutrino-specific layer on top of [HepMC3](https://gitlab.cern.ch/hepmc/HepMC3) that adds conventions for flux, process labelling, vertex metadata, and generator bookkeeping so downstream experiment frameworks can treat any generator identically.
