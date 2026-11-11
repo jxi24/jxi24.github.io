@@ -36,6 +36,7 @@
   - [ ] Add a project for **NeuCol SciDAC5** collaboration if appropriate
 
 - [ ] **Add project images** — NuHepMC and i-flow have no preview thumbnails. Add a representative figure (Feynman diagram, architecture plot, result plot) for each project card.
+
   - NuHepMC: two sketches proposed (event-graph schematic, generator→experiment pipeline); artwork still to be produced.
 
 - [ ] **Populate the teaching page** (`_pages/teaching.md`) — scaffold in place (PHY 222 at MSU, stub sections for summer schools, mentoring, and teaching philosophy) but hidden from the nav (`nav: false`) until filled in. Content to come in a separate PR; set `nav: true` when done.
