@@ -15,7 +15,7 @@ name: Sync Publications
 #
 # Optional secrets:
 #   SMTP_PORT          — 465 (SSL, default) or 587 (STARTTLS)
-#   NOTIFICATION_EMAIL — recipient; defaults to isaacson@fnal.gov
+#   NOTIFICATION_EMAIL — recipient; defaults to isaacs21@msu.edu
 
 on:
   push:

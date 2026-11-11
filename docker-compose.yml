@@ -10,3 +10,10 @@ services:
       - .:/srv/jekyll
     environment:
       - JEKYLL_ENV=development
+    develop:
+      watch:
+        # Gemfile changes need a full container restart: the entrypoint re-runs
+        # `bundle install` only at startup. Everything else (content, _config.yml)
+        # is already picked up live through the bind mount above.
+        - action: restart
+          path: ./Gemfile
