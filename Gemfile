@@ -1,4 +1,6 @@
 source 'https://rubygems.org'
+# Ruby 4.0 dropped ostruct from the default gems; jekyll-twitter-plugin requires it at load time
+gem 'ostruct'
 group :jekyll_plugins do
     gem 'classifier-reborn'
     gem 'jekyll'
