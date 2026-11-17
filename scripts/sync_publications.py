@@ -117,10 +117,14 @@ def normalize_fields(bib_entry: str) -> str:
     return bib_entry
 
 
-def inject_custom_fields(bib_entry: str, inspire_id: int, default_preview: str) -> str:
+def inject_custom_fields(bib_entry: str, inspire_id: int, default_preview: str | None) -> str:
     """
     Append al-folio custom fields to a BibTeX entry (before the closing brace).
     Field order matches the convention used throughout papers.bib.
+
+    `default_preview` is only written when it is not None. Callers must pass
+    None when the fallback image does not exist: a preview= field pointing at a
+    missing file renders a broken <img> and fails the site link check.
     """
     bib_entry = bib_entry.rstrip()
     if bib_entry.endswith("}"):
@@ -134,7 +138,8 @@ def inject_custom_fields(bib_entry: str, inspire_id: int, default_preview: str) 
         fields.append(f"    abbr = {{{abbr}}}")
     fields.append("    bibtex_show = {true}")
     fields.append(f"    inspirehep_id = {{{inspire_id}}}")
-    fields.append(f"    preview = {{{default_preview}}}")
+    if default_preview:
+        fields.append(f"    preview = {{{default_preview}}}")
 
     return body + ",\n" + ",\n".join(fields) + "\n}"
 
@@ -242,7 +247,7 @@ def _bib_field(entry: str, field: str) -> str:
 
 def _entry_to_dict(bib: str) -> dict:
     """Convert a BibTeX entry string to a dict suitable for JSON output."""
-    key_m = re.search(r'@\w+\{(\w+:\w+),', bib)
+    key_m = re.search(r'@\w+\{([\w-]+:\w+),', bib)
     inspire_m = re.search(r'inspirehep_id\s*=\s*\{(\d+)\}', bib)
     key = key_m.group(1) if key_m else "unknown"
     return {
@@ -310,6 +315,11 @@ def main() -> None:
         print("Bibliography is up to date.")
         return
 
+    # Only reference the fallback preview if the image actually exists.
+    # generate_previews.py --update-bib adds the field once a thumbnail exists.
+    preview_dest = bib_path.parent.parent / "assets" / "img" / "publication_preview" / args.default_preview
+    default_preview = args.default_preview if preview_dest.exists() else None
+
     # ── Fetch BibTeX for each missing paper ───────────────────────────────────
     new_entries: list[str] = []
     for rid in missing:
@@ -317,7 +327,7 @@ def main() -> None:
         try:
             bib = fetch_bibtex(rid)
             bib = normalize_fields(bib)
-            bib = inject_custom_fields(bib, rid, args.default_preview)
+            bib = inject_custom_fields(bib, rid, default_preview)
             new_entries.append(bib)
         except Exception as exc:
             print(f"    Warning: skipped {rid}: {exc}")
@@ -362,10 +372,9 @@ def main() -> None:
     print("  3. Add `abbr = {Journal}` for any entry where it wasn't auto-detected")
     print("  4. Run `bundle exec jekyll serve` to preview")
 
-    preview_dest = bib_path.parent.parent / "assets" / "img" / "publication_preview" / args.default_preview
-    if not preview_dest.exists():
-        print(f"\n  Note: {preview_dest} does not exist.")
-        print("  Create a fallback thumbnail there so new entries render correctly.")
+    if default_preview is None:
+        print(f"\n  Note: {preview_dest} does not exist, so no preview= field was added.")
+        print("  Run scripts/generate_previews.py --update-bib to add thumbnails.")
 
 
 if __name__ == "__main__":

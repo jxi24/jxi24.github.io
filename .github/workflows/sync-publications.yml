@@ -83,7 +83,7 @@ jobs:
               if p.get("arxiv"):
                   result = subprocess.run(
                       [sys.executable, "scripts/generate_previews.py",
-                       "--key", p["key"]],
+                       "--key", p["key"], "--update-bib"],
                       check=False,
                   )
                   if result.returncode != 0:
