@@ -5,4 +5,4 @@ inline: true
 related_posts: false
 ---
 
-New paper: *ML4nu II: More Leptons* ([arXiv:2610.30338](https://arxiv.org/abs/2610.30338)).
+New paper: _ML4nu II: More Leptons_ ([arXiv:2610.30338](https://arxiv.org/abs/2610.30338)).

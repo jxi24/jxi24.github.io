@@ -5,4 +5,4 @@ inline: true
 related_posts: false
 ---
 
-New paper: *Phenomenological Chiral Effective Field Theory for Neutrino Event Generators* ([arXiv:2610.40866](https://arxiv.org/abs/2610.40866)).
+New paper: _Phenomenological Chiral Effective Field Theory for Neutrino Event Generators_ ([arXiv:2610.40866](https://arxiv.org/abs/2610.40866)).
