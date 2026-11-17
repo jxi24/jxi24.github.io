@@ -46,7 +46,7 @@ def parse_entries(bib_text: str) -> list[dict]:
     start/end are character offsets into bib_text for in-place edits.
     """
     entries = []
-    for m in re.finditer(r'(@\w+\{(\w+:\w+),(.*?)\n\})', bib_text, re.DOTALL):
+    for m in re.finditer(r'(@\w+\{([\w-]+:\w+),(.*?)\n\})', bib_text, re.DOTALL):
         body = m.group(3)
         arxiv_m = re.search(r'\barxiv\s*=\s*["{]([^"}\s]+)["}]', body, re.I)
         preview_m = re.search(r'\bpreview\s*=\s*[\{"]+([^}"\n]+)[\}"]', body)
@@ -103,12 +103,18 @@ def _patch_preview(bib_text: str, key: str, new_name: str) -> str:
     preview_repl = r'\1{' + new_name + r'}'
 
     def replacer(m: re.Match) -> str:
-        patched_body = re.sub(
-            r'(\bpreview\s*=\s*)[\{"][^}"\n]*[\}"]',
-            preview_repl,
-            m.group(2),
-        )
-        return m.group(1) + patched_body + '\n}'
+        body = m.group(2)
+        if re.search(r'\bpreview\s*=', body):
+            body = re.sub(
+                r'(\bpreview\s*=\s*)[\{"][^}"\n]*[\}"]',
+                preview_repl,
+                body,
+            )
+        else:
+            # No preview= field yet (sync_publications.py omits it when there
+            # is no fallback image): append one.
+            body = body.rstrip().rstrip(',') + ',\n    preview = {' + new_name + '}'
+        return m.group(1) + body + '\n}'
 
     return re.sub(entry_pat, replacer, bib_text, flags=re.DOTALL)
 
